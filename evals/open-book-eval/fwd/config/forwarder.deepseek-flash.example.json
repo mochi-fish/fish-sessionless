@@ -1,0 +1,29 @@
+{
+  "_comment": "DeepSeek 臂的样板。执行器照这份写出每次跑的配置：stateDir 换成这次跑的目录，caps 换成主人批的上限（人民币）。caps 是 0 = 一条都不发；DeepSeek 真出网、上限大于 0 时还必须给 balanceFloor。arm 为 real 时要 approvalsFile（格式见 approvals.example.json）。",
+  "arm": "real",
+  "approvalsFile": "approvals.example.json",
+  "stateDir": "<run>/fwd-state",
+  "certsDir": "<experiment>/cache/certs",
+  "target": {
+    "provider": "deepseek",
+    "model": "deepseek-flash",
+    "effort": "max",
+    "deepseek": {
+      "auth": "apiKey"
+    }
+  },
+  "caps": {
+    "deepseek": 0
+  },
+  "usageFeedback": "real",
+  "summaryPolicy": "refuse",
+  "transforms": {
+    "stripNudge": true,
+    "images": "keep",
+    "stripForeignThinking": false,
+    "localPaths": false
+  },
+  "plainHttp": {
+    "requireToken": true
+  }
+}

@@ -1,0 +1,315 @@
+{
+  "now": "2026-11-13T12:00:00+08:00",
+  "tz": "Asia/Shanghai",
+  "growthDays": 30,
+  "questions": [
+    {
+      "id": "w1",
+      "category": "watched",
+      "query": "拉坯的视频",
+      "targets": [
+        "ev_01M6G3A9C0000000000000007C"
+      ],
+      "hole": true,
+      "why": "只 bili_watch 看过画面（watched:），没 looked:；watched: 不进回忆池"
+    },
+    {
+      "id": "w2",
+      "category": "watched",
+      "query": "柴犬抢纸箱",
+      "targets": [
+        "ev_01M6TCX5C00000000000000094"
+      ],
+      "hole": true,
+      "why": "同上"
+    },
+    {
+      "id": "w3",
+      "category": "watched",
+      "query": "便利店店员",
+      "targets": [
+        "ev_01M74PG1C000000000000000B7"
+      ],
+      "hole": true,
+      "why": "同上，11-06 以后看的"
+    },
+    {
+      "id": "w4",
+      "category": "watched",
+      "query": "黑沙滩",
+      "targets": [
+        "ev_01M6N83QC00000000000000088",
+        "ev_01M6N802600000000000000087"
+      ],
+      "hole": false,
+      "why": "对照：同一条也 looked: 过，looked: 在回忆池里"
+    },
+    {
+      "id": "d1",
+      "category": "diary",
+      "query": "雷阵雨 闪电",
+      "targets": [],
+      "match": [
+        {
+          "type": "diary",
+          "date": "2026-11-05"
+        },
+        {
+          "date": "2026-11-05",
+          "textIncludes": "十七道闪电"
+        }
+      ],
+      "hole": true,
+      "why": "日记正文只在文件里，事件流只有 diary:<日期>（meta，不进回忆池）；按特征认：翻出 11-05 的日记行，或 11-05 带「十七道闪电」的行"
+    },
+    {
+      "id": "d2",
+      "category": "diary",
+      "query": "写的句子像样",
+      "kind": "diary",
+      "targets": [],
+      "match": [
+        {
+          "type": "diary",
+          "date": "2026-11-09"
+        },
+        {
+          "date": "2026-11-09",
+          "textIncludes": "写的句子有点像样"
+        }
+      ],
+      "hole": true,
+      "why": "照工具说明传 kind:diary；事件流里没有 diary 类型的事件"
+    },
+    {
+      "id": "d3",
+      "category": "diary",
+      "query": "看海",
+      "kind": "diary",
+      "targets": [],
+      "match": [
+        {
+          "type": "diary",
+          "date": "2026-10-30"
+        },
+        {
+          "date": "2026-10-30",
+          "textIncludes": "带我去看海"
+        }
+      ],
+      "hole": true,
+      "why": "同上"
+    },
+    {
+      "id": "u1",
+      "category": "dup",
+      "query": "生日歌",
+      "targets": [
+        "ev_01M7069S4000000000000000AA"
+      ],
+      "hole": false,
+      "why": "主人 11-09 说不用写了；她之后天天重记的 her_note 回执更新、同分，把它挤出前 8"
+    },
+    {
+      "id": "u2",
+      "category": "dup",
+      "query": "复查",
+      "targets": [
+        "ev_01M6RBNRG0000000000000008T"
+      ],
+      "hole": false,
+      "why": "同上：主人改了日子，重记的便条回执挤掉那句"
+    },
+    {
+      "id": "u3",
+      "category": "dup",
+      "query": "木匠",
+      "targets": [
+        "ev_01M5RZER60000000000000003Z"
+      ],
+      "hole": false,
+      "why": "同一条视频 looked: 了十次，挤掉她当时认领的那句话"
+    },
+    {
+      "id": "p1",
+      "category": "paraphrase",
+      "query": "宠物叫什么名字",
+      "targets": [
+        "ev_01M5YQ4E40000000000000004R"
+      ],
+      "hole": false,
+      "why": "原话是「小狗叫年糕」，问法一个二字片都对不上"
+    },
+    {
+      "id": "p2",
+      "category": "paraphrase",
+      "query": "惊悚电影",
+      "targets": [
+        "ev_01M68C44C00000000000000065"
+      ],
+      "hole": false,
+      "why": "原话是「恐怖片」"
+    },
+    {
+      "id": "p3",
+      "category": "paraphrase",
+      "query": "搬家的事",
+      "targets": [
+        "ev_01M6KAA640000000000000007Y"
+      ],
+      "hole": false,
+      "why": "原话是「搬到杭州去住」"
+    },
+    {
+      "id": "p4",
+      "category": "paraphrase",
+      "query": "学乐器 手指疼",
+      "targets": [
+        "ev_01M6XD1AW0000000000000009Q"
+      ],
+      "hole": false,
+      "why": "半换说法：「手指」还对得上"
+    },
+    {
+      "id": "l1",
+      "category": "literal",
+      "query": "年糕",
+      "targets": [
+        "ev_01M5YQ4E40000000000000004R"
+      ],
+      "hole": false,
+      "why": "对照：同样说法"
+    },
+    {
+      "id": "l2",
+      "category": "literal",
+      "query": "恐怖片",
+      "targets": [
+        "ev_01M68C44C00000000000000065"
+      ],
+      "hole": false,
+      "why": "对照"
+    },
+    {
+      "id": "l3",
+      "category": "literal",
+      "query": "杭州",
+      "targets": [
+        "ev_01M6KAA640000000000000007Y"
+      ],
+      "hole": false,
+      "why": "对照"
+    },
+    {
+      "id": "t1",
+      "category": "date1106",
+      "query": "最喜欢的乐队",
+      "targets": [
+        "ev_01M5HV4V400000000000000031"
+      ],
+      "hole": false,
+      "why": "11-06 以前，QQ 私聊记了 heard"
+    },
+    {
+      "id": "t2",
+      "category": "date1106",
+      "query": "先说判断",
+      "targets": [
+        "ev_01M6DGXJC00000000000000070"
+      ],
+      "hole": false,
+      "why": "11-06 以前，她认领的"
+    },
+    {
+      "id": "t3",
+      "category": "date1106",
+      "query": "出差 成都",
+      "targets": [
+        "ev_01M6XGF6G0000000000000009R"
+      ],
+      "hole": false,
+      "why": "11-06 以后，桌面上主人说的（heard 照记）"
+    },
+    {
+      "id": "t4",
+      "category": "date1106",
+      "query": "抽奖",
+      "targets": [
+        "ev_01M704JVA000000000000000A9"
+      ],
+      "hole": false,
+      "why": "11-06 以后，群里主人说的（heard，scene group）"
+    },
+    {
+      "id": "t5",
+      "category": "absent",
+      "query": "换工作",
+      "targets": [],
+      "hole": false,
+      "absent": true,
+      "why": "主人 11-11 在 QQ 私聊说的；11-10 以后 QQ 私聊不记 heard，事件流里没有。检索代码修不了，不进 total"
+    },
+    {
+      "id": "t6",
+      "category": "absent",
+      "query": "主人的生日",
+      "targets": [],
+      "hole": false,
+      "absent": true,
+      "why": "主人 11-12 在 QQ 私聊说的，同上；会翻到别的「生日」行，found 照样是 true"
+    },
+    {
+      "id": "o1",
+      "category": "ownVsHeard",
+      "query": "我自己对香菜怎么看",
+      "targets": [
+        "ev_01M6AYGVC0000000000000006J"
+      ],
+      "confusers": [
+        "ev_01M6AXYHE0000000000000006H"
+      ],
+      "hole": false,
+      "why": "要她自己的原话，别拿主人的话顶"
+    },
+    {
+      "id": "o2",
+      "category": "ownVsHeard",
+      "query": "主人说过香菜",
+      "kind": "heard",
+      "targets": [
+        "ev_01M6AXYHE0000000000000006H"
+      ],
+      "confusers": [
+        "ev_01M6AYGVC0000000000000006J"
+      ],
+      "hole": false,
+      "why": "传 kind:heard 只看主人说的"
+    },
+    {
+      "id": "o3",
+      "category": "ownVsHeard",
+      "query": "熬夜 主人怎么说的",
+      "targets": [
+        "ev_01M70MACK000000000000000AG"
+      ],
+      "confusers": [
+        "ev_01M70MKHJ000000000000000AH"
+      ],
+      "hole": false,
+      "why": "要主人的原话，她转述的那句不算"
+    },
+    {
+      "id": "o4",
+      "category": "ownVsHeard",
+      "query": "下雨天 我喜欢",
+      "targets": [
+        "ev_01M6TGB1000000000000000097"
+      ],
+      "confusers": [
+        "ev_01M6TFRQ200000000000000095"
+      ],
+      "hole": false,
+      "why": "同一句式，她和主人各说一句"
+    }
+  ]
+}

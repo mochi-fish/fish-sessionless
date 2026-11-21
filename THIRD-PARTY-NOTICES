@@ -1,0 +1,243 @@
+THIRD-PARTY-NOTICES — fish-sessionless（第一批）
+
+本仓库自己的代码和文档用 MIT 许可，见 LICENSE。
+这份文件只列第一批里有的东西。以后几批带进来的第三方代码，随那一批补在这里。
+
+分三部分：
+  一、带进本仓库的第三方代码或文字（附许可原文）
+  二、运行时要用、但不随本仓库分发的东西
+  三、只借了思路、没有拷代码的（致谢）
+
+
+===============================================================================
+一、带进本仓库的第三方代码或文字
+===============================================================================
+
+1. billion-context（含内核 acp-kernel）
+   https://github.com/ranxianglei/billion-context
+   https://github.com/ranxianglei/acp-kernel
+   许可：MIT，外加一条「产品出处标注」附加条款。billion-context 仓库根目录和它的
+   内核目录 kernel/（acp-kernel）各有一份 LICENSE，附加条款的写法略有不同，
+   两份原文都附在下面。
+
+   用在哪：
+   - packages/fish-pack-zh（中文规则包 0.2）：压缩代理用的中文规则包。包的格式照
+     billion-context，催压的话、写摘要的规则和 compress / decompress /
+     search_context 三个工具的说明，是 billion-context 提示词的中文改写。
+     适用下面第一份（仓库根目录的 LICENSE）。
+   - evals/ 下评测架子里的 kernel-wire.mjs：从 kernel/src（acp-kernel）里消息
+     协议转换（wire）那部分代码，用 esbuild 打成的一个文件。来源是我们自己的
+     fork 上的一个提交（在上游 0.1.213 上带少量本地修改）；同目录的清单记着
+     来源提交和每个输入文件的 sha256。适用下面两份（主要是第二份 kernel/LICENSE）。
+   - tools/models-lib.mjs：按压缩代理判窗、预留输出的做法重写的计算（文件开头
+     写了照的是哪几个函数）。适用下面第一份。
+
+   两份附加条款都要求在首页、文档或致谢页标明出处，并附链接。本仓库在
+   README.md 的「许可和出处」一节标明，带 billion-context 和 acp-kernel 两个链接。
+
+   ---------------------------------------------------------------------------
+   billion-context — LICENSE（仓库根目录）
+   ---------------------------------------------------------------------------
+MIT License
+
+Copyright (c) 2026 ranxianglei
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+---
+
+Additional Term — Attribution on Product Surfaces
+(在 MIT 之上附加的条款 —— 产品出处标注)
+
+In addition to the conditions above, if you use or incorporate the Software
+(including its kernels, e.g. acp-kernel) in a product or service that end
+users can see or interact with — whether commercial or open source — you
+must make attribution clearly visible in at least one of the following places:
+
+  1. the product's home page;
+  2. its documentation; or
+  3. its "About" / "Credits" / "Acknowledgements" page.
+
+The attribution must state that the product uses billion-context (and
+acp-kernel, where applicable) and include a link to
+https://github.com/ranxianglei/billion-context (and
+https://github.com/ranxianglei/acp-kernel, where applicable).
+
+For purely server-side or embedded uses with no user-facing surface, carrying
+these notices in the shipped documentation satisfies this term.
+
+附加条款（中文）：
+
+除上述条件外，若将本软件（含其内核，如 acp-kernel）用于任何终端用户可见或可交互的
+产品或服务（无论商业或开源），须在下述至少一处显著位置标明出处：
+
+  1. 产品首页；
+  2. 产品文档；或
+  3. “关于 / 致谢 / Acknowledgements”页面。
+
+署名须说明该产品使用了 billion-context（涉及时包括 acp-kernel），并附指向
+https://github.com/ranxianglei/billion-context （及 https://github.com/ranxianglei/acp-kernel，
+涉及时）的链接。纯服务端或内嵌、无用户可见界面的用途，随附文档中包含上述声明即可。
+
+   ---------------------------------------------------------------------------
+   acp-kernel — kernel/LICENSE（billion-context 仓库里的内核目录）
+   ---------------------------------------------------------------------------
+MIT License
+
+Copyright (c) 2026 ranxianglei
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+---
+
+Additional Term — Attribution on Product Surfaces
+(在 MIT 之上附加的条款 —— 产品出处标注)
+
+In addition to the conditions above, if you use or incorporate the Software
+in a product or service that end users can see or interact with — whether
+commercial or open source — you must make attribution clearly visible in at
+least one of the following places:
+
+  1. the product's home page;
+  2. its documentation; or
+  3. its "About" / "Credits" / "Acknowledgements" page.
+
+The attribution must state that the product uses acp-kernel (and
+billion-context, where applicable) and include a link to
+https://github.com/ranxianglei/acp-kernel (and
+https://github.com/ranxianglei/billion-context, where applicable).
+
+For purely server-side or embedded uses with no user-facing surface, carrying
+these notices in the shipped documentation satisfies this term.
+
+附加条款（中文）：
+
+除上述条件外，若将本软件用于任何终端用户可见或可交互的产品或服务（无论商业或开源），
+须在下述至少一处显著位置标明出处：
+
+  1. 产品首页；
+  2. 产品文档；或
+  3. “关于 / 致谢 / Acknowledgements”页面。
+
+署名须说明该产品使用了 acp-kernel（涉及时包括 billion-context），并附指向
+https://github.com/ranxianglei/acp-kernel （及 https://github.com/ranxianglei/billion-context，
+涉及时）的链接。纯服务端或内嵌、无用户可见界面的用途，随附文档中包含上述声明即可。
+
+   ---------------------------------------------------------------------------
+
+2. DSH（DeepSeek Harness 宿主）
+   https://github.com/deepseek-ai/deepseek-harness
+   许可：MIT，原文附在下面。
+
+   用在哪：
+   - tools/models-lib.mjs：图片上限、一档摘几张、像素预算这些缺省值，和宿主摘图的
+     步骤，照 DSH 0.2.2 的源码重写（文件开头和常数旁边写了出处）。没有拷它的文件。
+
+   ---------------------------------------------------------------------------
+   DSH — LICENSE
+   ---------------------------------------------------------------------------
+MIT License
+
+Copyright (c) 2026 DeepSeek
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+   ---------------------------------------------------------------------------
+
+
+===============================================================================
+二、运行时要用、但不随本仓库分发的东西
+===============================================================================
+
+下面这些本仓库不带它们的代码。用的时候各自按它们自己的许可。
+
+- DSH（DeepSeek Harness 宿主）
+  https://github.com/deepseek-ai/deepseek-harness ，MIT。
+  packages/fish-ledger 是它的插件。插件的离线测试从使用者自己的 DSH 源码目录
+  加载宿主自带的 cordis（用环境变量指过去），不拷进本仓库。
+
+- dsh-fish（陪伴体本体，「大肥鱼」）
+  https://github.com/ssamurias/dsh-fish ，MIT。
+  记忆评测的一部分在运行时加载使用者装好的 dsh-fish，不拷进本仓库。
+
+- OneBot v11 实现（任意一个）
+  recorder/ 连的对端。本仓库不带任何实现的代码。
+  录制器有一个可选的「整包展开合并转发」：要使用者自己写一个外挂模块。本仓库
+  不带解包的实现，也不带任何实现的协议定义文件；那些定义的许可各不相同（有的
+  不允许商用、不允许再发布），使用者按各自的许可自行准备，接口见 recorder/README.md。
+
+- OneBot v11 协议
+  录制器按 OneBot v11 的公开协议说明收发，不含任何实现的代码。
+
+- js-yaml（MIT）和它的依赖 argparse（Python-2.0）
+  tools/ 的 npm 依赖，版本钉在 tools/package-lock.json，用 npm ci 装，不随本仓库分发。
+
+
+===============================================================================
+三、只借了思路、没有拷代码的（致谢）
+===============================================================================
+
+下面这些项目给了我们想法。本仓库里相关的代码是自己写的，没有拷它们的代码。
+列在这里是致谢，不是许可声明。
+
+- 万卷（wanjuan，DSH 上的一个上下文压缩插件）
+  packages/ledger-core 的写者：追加之前先看文件尾，把写了一半的行隔离出去；
+  状态文件先写临时文件再改名。
+
+- dsh-live-compact（DSH 上的一个上下文压缩插件）
+  派生出来的东西记着来源编号，原事件不动；「完成」「送达」只认调用编号和回执。
+
+- Comma（一个自称 sessionless 的 agent 系统，AGPL-3.0）
+  受众标签的思路：来话进门就标读者；没有标签的按最严；派生物取各来源读者的交集；
+  她自己写的按写的时候能看到的最严算。只借了设计，没有拷它的代码。
+
+- Cortico（一个把 agent 的身份放在会话外面的 agent 宿主）
+  工具权限收成一张表，判定和展示用同一个函数，测试按表逐格生成。

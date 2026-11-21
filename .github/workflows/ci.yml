@@ -1,0 +1,108 @@
+# fish-sessionless 的 CI。不用任何 secret；第三方的 action 按完整的提交 sha 钉住，gitleaks 钉版本并核 sha256。
+#
+# 做三件事（先扫 2、3，再装依赖、跑 1：装出来的 node_modules 不进扫描）：
+#   1. node --test：packages/*、tools、evals、recorder 下面的测试文件。认两种名字：
+#      *.test.mjs（node:test 写的）和 test-*.mjs（从头跑到尾、看退出码的脚本）；.js、.cjs 也认；
+#      跳过 node_modules 和 fixtures。测试要不带参数就能跑；要参数的脚本式测试不要用这两种名字。
+#      有 package-lock.json 的目录先 npm ci（不跑安装脚本）。
+#   2. privacy-scan 的公开规则：扫整棵树，再扫这次的提交和它的全部历史。
+#      私有层（真值、原话指纹）和禁发关键词只在维护者本机跑，不进 CI。
+#   3. gitleaks：扫全部历史和整棵树，输出打码（--redact）。
+#
+# 钉住的版本（2026-11-21 用 gh api 只读查的）：
+#   actions/checkout   v7.0.1  3d3c42e5aac5ba805825da76410c181273ba90b1
+#   actions/setup-node v7.1.0  949feb2413d6458794dcd2491c4babbbce0c15c1
+#   gitleaks           v8.30.1（2026-03-21 发布）linux_x64 tar.gz 的 sha256 见下面的 env
+name: ci
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - name: checkout（全部历史，给历史扫描用）
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: node 22
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '22'
+          package-manager-cache: false
+
+      # 先扫后装：npm ci 装出来的 node_modules 不在仓库里，也不该被 privacy-scan、gitleaks 扫到
+      - name: privacy-scan（公开规则，整棵树）
+        run: node tools/privacy-scan/scan.mjs .
+
+      - name: privacy-scan（公开规则，这次的提交和全部历史）
+        run: node tools/privacy-scan/scan.mjs --git . --rev HEAD
+
+      - name: gitleaks（v8.30.1，核 sha256，输出打码）
+        shell: bash
+        env:
+          GITLEAKS_VERSION: '8.30.1'
+          GITLEAKS_TARBALL_SHA256: '551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb'
+        run: |
+          set -euo pipefail
+          tmp="$(mktemp -d)"
+          name="gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz"
+          curl -sSfL --retry 3 -o "${tmp}/${name}" "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/${name}"
+          echo "${GITLEAKS_TARBALL_SHA256}  ${tmp}/${name}" | sha256sum -c -
+          tar -xzf "${tmp}/${name}" -C "${tmp}" gitleaks
+          "${tmp}/gitleaks" git --redact --no-banner --exit-code 1 --log-opts="--all" .
+          "${tmp}/gitleaks" dir --redact --no-banner --exit-code 1 .
+
+      - name: 装依赖（只在有 package-lock.json 的目录；不跑安装脚本）
+        shell: bash
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+          for dir in packages/*/ tools/ evals/ evals/*/ recorder/; do
+            [ -f "${dir}package-lock.json" ] || continue
+            echo "::group::npm ci ${dir}"
+            npm ci --prefix "${dir}" --ignore-scripts --no-audit --no-fund
+            echo "::endgroup::"
+          done
+
+      - name: node --test（packages/*、tools、evals、recorder）
+        shell: bash
+        run: |
+          set -uo pipefail
+          shopt -s globstar nullglob
+          fail=0
+          total=0
+          for dir in packages/*/ tools/ evals/ recorder/; do
+            [ -d "$dir" ] || continue
+            files=()
+            declare -A seen=()
+            for f in "$dir"**/*.test.{mjs,js,cjs} "$dir"**/test-*.{mjs,js,cjs}; do
+              case "$f" in */node_modules/*|*/fixtures/*) continue ;; esac
+              [ -z "${seen[$f]:-}" ] || continue
+              seen[$f]=1
+              files+=("$f")
+            done
+            unset seen
+            if [ "${#files[@]}" -eq 0 ]; then
+              echo "（${dir} 没有测试文件）"
+              continue
+            fi
+            echo "::group::${dir}：${#files[@]} 个测试文件"
+            node --test --test-concurrency=2 "${files[@]}" || fail=1
+            echo "::endgroup::"
+            total=$((total + ${#files[@]}))
+          done
+          echo "一共 ${total} 个测试文件"
+          exit "$fail"

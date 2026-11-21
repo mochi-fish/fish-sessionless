@@ -1,0 +1,21 @@
+{
+  "name": "fish-pack-zh",
+  "version": "0.2.0",
+  "description": "billion-context 的中文养成向规则包：给长期陪伴的 AI 用的摘要写法、读法和催压说明",
+  "type": "module",
+  "license": "MIT",
+  "files": [
+    "build.mjs",
+    "texts/",
+    "dist/",
+    "README.md",
+    "THIRD-PARTY-NOTICES.md"
+  ],
+  "scripts": {
+    "build": "node build.mjs",
+    "test": "node test/test-pack.mjs"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

@@ -1,0 +1,81 @@
+<section id="chains">
+  <div class="sec-head">
+    <p class="eyebrow">两条链</p>
+    <h2>不拆她，只拆「发请求走的路」</h2>
+    <p class="lede">只有一条会话时，三种来话都挤在一条链里：群那一轮的模型拿到的请求，带着主人私聊的历史。方案不把她拆成几个会话，而是让群和来客那几轮各走一条<strong>受众链</strong>：从空开始，只装这一边能看的材料。回复照样落回同一份主日志。</p>
+  </div>
+
+  <figure>
+    <div class="fig-scroll narrow">
+      <svg viewBox="0 0 760 260" role="img" aria-label="前后对比。左边：只有一条链时，主人的私聊、群、来客三种来话都进同一条主链，请求里带着整本主册。右边：分链以后，主人那几轮走主链，群和来客各走自己的受众链，只装这一边能看的材料；所有回复都落回同一份主日志。">
+        <defs>
+          <marker id="c-ah" viewBox="0 0 10 10" refX="9" refY="5" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="f-ink"/></marker>
+        </defs>
+        <text x="20" y="24" class="tx-h">只有一条链</text>
+        <rect x="20" y="40" width="90" height="28" rx="14" class="box s-main"/><text x="65" y="59" text-anchor="middle" class="tx-s">主人</text>
+        <rect x="120" y="40" width="90" height="28" rx="14" class="box s-aud"/><text x="165" y="59" text-anchor="middle" class="tx-s">群</text>
+        <rect x="220" y="40" width="90" height="28" rx="14" class="box s-aud"/><text x="265" y="59" text-anchor="middle" class="tx-s">来客</text>
+        <path d="M65,68 V108" class="ln" marker-end="url(#c-ah)"/>
+        <path d="M165,68 V108" class="ln" marker-end="url(#c-ah)"/>
+        <path d="M265,68 V108" class="ln" marker-end="url(#c-ah)"/>
+        <rect x="20" y="110" width="290" height="60" rx="10" class="w-main s-main" stroke-width="1.5"/>
+        <text x="34" y="134" class="tx-b">主链</text>
+        <text x="34" y="154" class="tx-s">每一轮都带整本主册，包括主人的私聊</text>
+        <path d="M165,170 V206" class="ln" marker-end="url(#c-ah)"/>
+        <rect x="20" y="208" width="290" height="36" rx="10" class="band"/>
+        <text x="165" y="231" text-anchor="middle" class="tx-s">同一份主日志</text>
+
+        <path d="M370,20 V244" class="ln thin"/>
+
+        <text x="420" y="24" class="tx-h">分链以后</text><text x="740" y="24" text-anchor="end" class="tx-m">P2</text>
+        <rect x="420" y="40" width="90" height="28" rx="14" class="box s-main"/><text x="465" y="59" text-anchor="middle" class="tx-s">主人</text>
+        <rect x="530" y="40" width="90" height="28" rx="14" class="box s-aud"/><text x="575" y="59" text-anchor="middle" class="tx-s">群</text>
+        <rect x="640" y="40" width="90" height="28" rx="14" class="box s-aud"/><text x="685" y="59" text-anchor="middle" class="tx-s">来客</text>
+        <path d="M465,68 V108" class="ln main" marker-end="url(#c-ah)"/>
+        <path d="M575,68 V108" class="ln aud" marker-end="url(#c-ah)"/>
+        <path d="M685,68 V108" class="ln aud" marker-end="url(#c-ah)"/>
+        <rect x="420" y="110" width="90" height="60" rx="10" class="w-main s-main" stroke-width="1.5"/>
+        <text x="465" y="134" text-anchor="middle" class="tx-b">主链</text>
+        <text x="465" y="154" text-anchor="middle" class="tx-s">整本主册</text>
+        <rect x="530" y="110" width="90" height="60" rx="10" class="w-aud s-aud dash" stroke-width="1.5"/>
+        <text x="575" y="134" text-anchor="middle" class="tx-b">群的链</text>
+        <text x="575" y="154" text-anchor="middle" class="tx-s">本群能看的</text>
+        <rect x="640" y="110" width="90" height="60" rx="10" class="w-aud s-aud dash" stroke-width="1.5"/>
+        <text x="685" y="134" text-anchor="middle" class="tx-b">来客的链</text>
+        <text x="685" y="154" text-anchor="middle" class="tx-s">这位来客能看的</text>
+        <path d="M465,170 V206" class="ln" marker-end="url(#c-ah)"/>
+        <path d="M575,170 V206" class="ln" marker-end="url(#c-ah)"/>
+        <path d="M685,170 V206" class="ln" marker-end="url(#c-ah)"/>
+        <rect x="420" y="208" width="310" height="36" rx="10" class="band"/>
+        <text x="575" y="231" text-anchor="middle" class="tx-s">还是同一份主日志</text>
+      </svg>
+    </div>
+    <figcaption>受众链只是「发请求走的路」，不是另一个她。受众链从空开始、只往后追加，不在同一份请求上按读者临时删消息（删一次，缓存就整段失效）。</figcaption>
+  </figure>
+
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th></th><th class="col-main">主链</th><th class="col-aud">受众链</th></tr></thead>
+      <tbody>
+        <tr><th>谁走这条</th><td>主人、桌面、她自己醒来的那几轮</td><td>每个群、每位来客各一条</td></tr>
+        <tr><th>里面装什么</th><td>整本主册：近期原文 + 她压的块</td><td>系统段、这一边能看的便条、工具表、这个聊天的近期原话、这条链上她自己压的块</td></tr>
+        <tr><th>不装什么</th><td>不另外删</td><td>她在主册写的摘要、话题、回想、写下的话；任何私聊内容</td></tr>
+        <tr><th>桥怎么处理</th><td>照现有的改写放行；新改写要她本人同意</td><td>从空开始现拼；拼不出来这一轮就不发</td></tr>
+        <tr><th>工具</th><td>照旧，门不加限制</td><td>每次过门；翻旧事只许翻这条链自己的</td></tr>
+        <tr><th>满了怎么办</th><td>水位：催她自己压</td><td>她在这条链上自己压；主链不动</td></tr>
+        <tr><th>出了错</th><td>照旧放行</td><td>按「不给」；下次主人那一轮告诉主人哪一轮没答上，不带内容</td></tr>
+        <tr><th>回复落在哪</th><td colspan="2">都落回同一份主日志</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>一条材料能不能进这一轮</h3>
+  <ul class="plain">
+    <li><strong>材料的读者要盖住这一轮的每一个读者。</strong>一轮里混进了不同的人，取交集，最严的说了算。</li>
+    <li><strong>原话</strong>按它进来时的信封算。没有标签的旧材料按最严，只给她。</li>
+    <li><strong>派生物</strong>（事项卡、交接包）取所有来源读者的交集；来源不明按最严。</li>
+    <li><strong>她自己写的东西</strong>（块摘要、话题、用工具写下的话）按她写的时候看得到的最严算，不按它盖住的原话算。光按来源筛不够：「块里全是群里的话，摘要却写了私聊」这种筛不掉。</li>
+    <li><strong>混在一起的旧块</strong>不靠删：要给群看，就从群能看的原话重新写一份「受众版」，作者标成代写，放在旁边，原块不动，要主人批。</li>
+    <li><strong>身份段里现算的几段</strong>按读者逐次过滤；做不到就整段不给。</li>
+  </ul>
+</section>

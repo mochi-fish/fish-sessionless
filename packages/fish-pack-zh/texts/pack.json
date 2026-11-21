@@ -1,0 +1,5 @@
+{
+  "name": "fish",
+  "version": "0.2.0",
+  "description": "大肥鱼的养成向压缩：读摘要那一节、二三层的催压说明、中文的催压抬头（平常 / 紧急）和三个工具（compress / decompress / search_context）的说明。四段规则正文走 compress.prompts（包里的 prompts 这个代理不读）；两个抬头里的道理由 build.mjs 从 compressPhilosophy 逐字拼进来。"
+}

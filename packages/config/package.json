@@ -1,0 +1,30 @@
+{
+  "name": "@mochi-fish/config",
+  "version": "0.1.0",
+  "description": "主人和陪伴体的身份配置：读一份 JSON、核过、冻住；读不到或不对就当没有主人。",
+  "license": "MIT",
+  "private": false,
+  "type": "module",
+  "exports": {
+    ".": "./index.mjs",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "index.mjs",
+    "SCHEMA.md",
+    "example.identity.json",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "test": "node --test \"test/*.test.mjs\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mochi-fish/fish-sessionless.git",
+    "directory": "packages/config"
+  }
+}

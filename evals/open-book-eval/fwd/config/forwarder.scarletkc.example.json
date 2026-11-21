@@ -1,0 +1,36 @@
+{
+  "_comment": "自建 OpenAI 兼容服务（比如 vLLM）的样板：上游地址取环境变量 FWD_OPENAI_BASE_URL，API 不收钱。合成臂要 privacy.snapshotDir（你自己记录的快照，格式见 README）。servingStackFile 可选，写你那边的部署信息（进指纹）。",
+  "arm": "synthetic",
+  "privacy": {
+    "snapshotDir": "<experiment>/privacy-snapshot-<stamp>",
+    "toolNames": [
+      "im_send"
+    ]
+  },
+  "stateDir": "<run>/fwd-state",
+  "certsDir": "<experiment>/cache/certs",
+  "target": {
+    "provider": "openai",
+    "model": "scarletkc",
+    "maxTokens": 32768,
+    "openai": {
+      "reasoningInField": "reasoning",
+      "midSystem": "to-user",
+      "enableThinking": true,
+      "maxImages": 128
+    }
+  },
+  "caps": {},
+  "usageFeedback": "pinned",
+  "summaryPolicy": "refuse",
+  "transforms": {
+    "stripNudge": true,
+    "images": "keep",
+    "stripForeignThinking": true,
+    "localPaths": true
+  },
+  "upstreamTimeoutMs": 1800000,
+  "plainHttp": {
+    "requireToken": true
+  }
+}

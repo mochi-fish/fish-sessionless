@@ -1,0 +1,184 @@
+{
+  "schema": 1,
+  "about": "核准表示例：陪伴体的会话能切到哪几个模型。拷成 tools/models.json（或者用环境变量 MODEL_SWITCH_MODELS 指到别处）再照自己的部署改。窗口、上限以 DSH 实际生效的为准：models-lib.mjs 现读 cordis.patch.yml 和代理配置去算，这里的 window、images 只在路线没写时兜底、用来比对。",
+  "inputTarget": 256000,
+  "imageMargin": 20,
+  "usageShareMax": 0.8,
+  "gateNote": "三条前提：在表里而且 approvedForHer；那条路线的图片上限 ≥ 她留着的图 + imageMargin（而且现在不会摘）；真用量 < usageShareMax × 判窗（读不到真用量也不算过）。另外看切回 DeepSeek 那条线的暴涨（surgeGuard）。",
+  "steps": [
+    "bridge-swap",
+    "proxy-upgrade",
+    "image-fold"
+  ],
+  "stepsDoc": "gateForStep 认得的步名（大小写照写，不认得的一律 BAD_ARGS）。这里是三个例子：bridge-swap（换桥）、proxy-upgrade（换代理）、image-fold（代理折图，只在某些模型上演练过）。加新步先加进这里。",
+  "modelSpecificSteps": [
+    "image-fold"
+  ],
+  "stepsNote": "rehearsedFor 只记跟模型有关、只在某几个模型上演练过的步；跟模型无关的步，过了核准表的三条前提就行。",
+  "surgeGuard": {
+    "r4Live": false,
+    "rule": "最后一份真请求不是 DeepSeek 那条线、目标（或 DSH 里已经选了、还没发的）是：r4Live false 时算问题 SURGE_BACK（退出码 6），true 时只出警告",
+    "flipWhen": "代理在换模型后的头几份请求只催不截、而且她的条目里开着这个开关以后，改成 true"
+  },
+  "models": [
+    {
+      "id": "deepseek-account/deepseek-flash",
+      "label": "DeepSeek Flash（日常）",
+      "approvedForHer": true,
+      "rehearsedFor": [
+        "image-fold"
+      ],
+      "route": {
+        "family": "llm-deepseek",
+        "plugin": "llm-deepseek-account",
+        "providerKey": null,
+        "api": "deepseek-anthropic",
+        "proxyProtocol": "anthropic",
+        "upstream": "https://api.deepseek.com"
+      },
+      "window": {
+        "native": 1048576,
+        "maxOutput": 256000,
+        "safety": 0.85,
+        "quality": null
+      },
+      "images": {
+        "input": true,
+        "representation": "files",
+        "capKey": "maxImagesPerRequest",
+        "capDefault": 600,
+        "quantumKey": "imageOffloadCountQuantum",
+        "quantumDefault": 20,
+        "bytesKey": "maxRequestFilesBytes",
+        "bytesDefault": 134217728,
+        "bytesQuantumDefault": 67108864,
+        "perImageMaxBytes": 2097152,
+        "planned": null,
+        "providerMax": null,
+        "serverMax": null
+      }
+    },
+    {
+      "id": "anthropic/claude-opus-5-5",
+      "label": "Claude Opus 5.5",
+      "approvedForHer": true,
+      "rehearsedFor": [],
+      "route": {
+        "family": "llm-pi-ai",
+        "plugin": "llm-pi-ai",
+        "providerKey": "anthropic",
+        "api": "anthropic-messages",
+        "proxyProtocol": "anthropic",
+        "upstream": "https://api.anthropic.com"
+      },
+      "window": {
+        "native": 1000000,
+        "maxOutput": 128000,
+        "safety": 0.85,
+        "quality": null
+      },
+      "images": {
+        "input": true,
+        "representation": "base64",
+        "capKey": "maxRequestImages",
+        "capDefault": 50,
+        "quantumKey": "imageOffloadCountQuantum",
+        "quantumDefault": 10,
+        "bytesKey": "maxRequestImageBytes",
+        "bytesDefault": 20971520,
+        "pixelKey": "requestImagePixelBudget",
+        "pixelDefault": 4194304,
+        "perImageMaxBytes": 1048576,
+        "planned": {
+          "maxRequestImages": 300,
+          "imageOffloadCountQuantum": 10,
+          "maxRequestImageBytes": 100663296,
+          "requestImagePixelBudget": 2359296
+        },
+        "providerMax": 600,
+        "serverMax": null
+      }
+    },
+    {
+      "id": "google/gemini-4-argon",
+      "label": "Gemini 4 Argon",
+      "approvedForHer": true,
+      "rehearsedFor": [],
+      "route": {
+        "family": "llm-pi-ai",
+        "plugin": "llm-pi-ai",
+        "providerKey": "google",
+        "api": "google",
+        "proxyProtocol": "google",
+        "upstream": "https://generativelanguage.googleapis.com"
+      },
+      "window": {
+        "native": 1048576,
+        "maxOutput": 32768,
+        "safety": 0.85,
+        "quality": null
+      },
+      "images": {
+        "input": true,
+        "representation": "base64",
+        "capKey": "maxRequestImages",
+        "capDefault": 50,
+        "quantumKey": "imageOffloadCountQuantum",
+        "quantumDefault": 10,
+        "bytesKey": "maxRequestImageBytes",
+        "bytesDefault": 20971520,
+        "pixelKey": "requestImagePixelBudget",
+        "pixelDefault": 4194304,
+        "perImageMaxBytes": 1048576,
+        "planned": {
+          "maxRequestImages": 300,
+          "imageOffloadCountQuantum": 10,
+          "maxRequestImageBytes": 100663296,
+          "requestImagePixelBudget": 1048576
+        },
+        "providerMax": 3600,
+        "serverMax": null
+      }
+    },
+    {
+      "id": "local-vllm/Qwen3-32B",
+      "label": "自己架的 vLLM（示例：只认文字）",
+      "approvedForHer": false,
+      "rehearsedFor": [],
+      "route": {
+        "family": "llm-pi-ai",
+        "plugin": "llm-pi-ai",
+        "providerKey": "local-vllm",
+        "api": "openai-completions",
+        "proxyProtocol": "openai",
+        "upstream": "（地址在 cordis.patch.yml 的 baseURL 里，表里不抄）"
+      },
+      "window": {
+        "native": 131072,
+        "maxOutput": 16384,
+        "safety": 0.85,
+        "quality": null
+      },
+      "images": {
+        "input": false,
+        "representation": "base64",
+        "capKey": "maxRequestImages",
+        "capDefault": 50,
+        "quantumKey": "imageOffloadCountQuantum",
+        "quantumDefault": 10,
+        "bytesKey": "maxRequestImageBytes",
+        "bytesDefault": 20971520,
+        "pixelKey": "requestImagePixelBudget",
+        "pixelDefault": 4194304,
+        "perImageMaxBytes": 1048576,
+        "planned": null,
+        "providerMax": null,
+        "serverMax": null
+      },
+      "server": {
+        "engine": "vLLM",
+        "maxModelLen": 131072
+      }
+    }
+  ]
+}

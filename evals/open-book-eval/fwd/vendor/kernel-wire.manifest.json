@@ -1,0 +1,76 @@
+{
+ "generatedBy": "fwd/vendor/build-kernel-wire.mjs",
+ "sourceRepo": "billion-context fork (MIT, Copyright (c) 2026 ranxianglei; read-only git archive of kernel/src)",
+ "commit": "5bb25bfd1e180314343a924b14d0b95d1d3f41ef",
+ "esbuild": "0.27.7",
+ "exports": [
+  "anthropicToCore",
+  "extractSystem",
+  "coreToGoogle",
+  "injectGoogleSystem",
+  "normalizeGoogleUserPartOrder",
+  "coreToOpenai",
+  "injectOpenaiSystem",
+  "detectWireFormat"
+ ],
+ "inputs": [
+  {
+   "path": "entry.ts",
+   "sha256": "76572af2fd15fa6c42a0949f025fa6bf8b6b9c68a63faed44d866153c33b2c9c"
+  },
+  {
+   "path": "kernel/src/media-refs.ts",
+   "sha256": "e965d851390b25d0e33c1597fe392edee34316568a932da03998e01ad386127f"
+  },
+  {
+   "path": "kernel/src/protected.ts",
+   "sha256": "02bbc2ed44a7c01b03507bbb77468f3123cd3fc710a657793517c66527c41e16"
+  },
+  {
+   "path": "kernel/src/prune.ts",
+   "sha256": "396d54fb4ec6656a85414c307f2dda0d6d41d717719c9ec8611ab4bb9affc73d"
+  },
+  {
+   "path": "kernel/src/state.ts",
+   "sha256": "bc837f27c630f5aa6cf8e88f9a9c3a78efeeee0aa2c881fc43889cd8baff80a8"
+  },
+  {
+   "path": "kernel/src/wire/anthropic.ts",
+   "sha256": "7257272916ba2dadffaca621a2b6aef37b9d8ca91c62f606d0ecc30ee0fef6c7"
+  },
+  {
+   "path": "kernel/src/wire/bili-message.ts",
+   "sha256": "5e2ba96999cbd1136604a454ca2ef8f53e6ef9df452cfc59037e9ee0ccc23a94"
+  },
+  {
+   "path": "kernel/src/wire/demoted-thinking.ts",
+   "sha256": "c294b179162f6f9ef1036459cdf3f684e7ecae42475a7e79d9e16c329a976108"
+  },
+  {
+   "path": "kernel/src/wire/formats.ts",
+   "sha256": "45b581aac786a478d85e36e0d257b2a89cc56089cabb230f3d62c42ebe86c538"
+  },
+  {
+   "path": "kernel/src/wire/google.ts",
+   "sha256": "a1daec7ba9c61d67f014f37fa9607a93a339a5987b3c6b2fda22664539cca786"
+  },
+  {
+   "path": "kernel/src/wire/identity.ts",
+   "sha256": "6cbd2a0c41b052f60e6efb81e0a569eb751510e170c68d51e2b058a07fcc6a46"
+  },
+  {
+   "path": "kernel/src/wire/message-id.ts",
+   "sha256": "3a9b8abaf900a3bbbd1512cf290aacb1e08689991dde3b31a34ab12de9913679"
+  },
+  {
+   "path": "kernel/src/wire/openai.ts",
+   "sha256": "e643503c898ea28965c5b9cd27b3c1ecb8ad5f7321d87646f61761db3e619085"
+  },
+  {
+   "path": "kernel/src/wire/util.ts",
+   "sha256": "ef8d918b7445c3b7ba184ceae62841b25672ab05d46852ee1d4b01e47e87f4e6"
+  }
+ ],
+ "outputSha256": "c132b55749732bf1221f6a4429e4be3ee88aaf0985675c8714fdd494bd1e78dd",
+ "outputBytes": 19343
+}

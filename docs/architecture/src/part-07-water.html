@@ -1,0 +1,74 @@
+<section id="water">
+  <div class="sec-head">
+    <p class="eyebrow">水位 · W</p>
+    <h2>每次带多少旧事去问模型：设上限，越线只催她自己压</h2>
+    <p class="lede">历史每天都在长。水位给每次请求带的历史设一个上限。越线时，只在她的上下文里加中文的催压提示，<strong>不让别的模型替她写摘要</strong>；截断只是兜底，而且只认提供方报的真用量。水位做在压缩代理的 fork 里，所有新开关缺省关。</p>
+  </div>
+
+  <figure>
+    <div class="fig-scroll narrow">
+      <svg viewBox="0 0 760 250" role="img" aria-label="上限怎么一级一级往下放的示意图。横轴是时间，纵轴是每次请求的输入大小。上限从高处开始，每一步往下降一档；每一档跑够几轮、真用量稳定在新的上限以内，再降下一档。真用量靠近上限时催她压一次，用量掉下来再慢慢涨。只有她没压、真用量又越过物理窗口时才截断。图里不标具体数字。">
+        <defs>
+          <marker id="w-ah" viewBox="0 0 10 10" refX="9" refY="5" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="f-ink"/></marker>
+        </defs>
+        <path d="M60,20 V210 H740" class="ln" marker-end="url(#w-ah)"/>
+        <text x="50" y="30" text-anchor="end" class="tx-c">输入</text>
+        <text x="740" y="232" text-anchor="end" class="tx-c">时间</text>
+        <path d="M60,40 H740" class="ln thin dash"/>
+        <text x="66" y="34" class="tx-s">物理窗口：越过且她没压，才截断（只认真用量）</text>
+        <path d="M60,70 H240 V110 H420 V140 H740" class="ln aud"/>
+        <text x="66" y="64" class="tx-s">上限：一档一档往下放</text>
+        <path d="M70,170 L120,130 L135,170 L190,120 L205,165 L250,140 L262,175 L320,128 L335,170 L400,135 L412,180 L470,150 L482,182 L540,152 L552,184 L610,153 L622,184 L680,152 L692,185 L730,165" class="ln main"/>
+        <text x="472" y="204" class="tx-s">真用量：靠近上限就催她压，压完掉下来再涨</text>
+        <text x="250" y="100" class="tx-c">跑够几轮、稳住了</text>
+        <text x="430" y="130" class="tx-c">再降一档</text>
+      </svg>
+    </div>
+    <figcaption>一次降一档；她连着几次都压不回来，就停在上一档，先查原因。换模型和降上限分开做。</figcaption>
+  </figure>
+
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>开关</th><th>做什么</th></tr></thead>
+      <tbody>
+        <tr><th>按会话设上限</th><td>只给她的会话设一个有效上限，不跟着模型的物理窗口走；别的会话照旧</td></tr>
+        <tr><th>不代写</th><td>越线只加催压提示；需要时先收小这一次的输出预算，不叫别的模型写摘要</td></tr>
+        <tr><th>截断只认真用量</th><td>拿到提供方报的用量以后才截；估计的数偏大时不会误截</td></tr>
+        <tr><th>纪元多数守卫</th><td>换模型以后旧思考块不再发、账本对不上号，被误判成「整段历史换了」而一直等确认；按多数消息判断，修掉这个误判</td></tr>
+        <tr><th>带图的工具结果也能折</th><td>原来带图的结果钉住不折；开了以后可以折，原图在本地附件目录</td></tr>
+        <tr><th>图片路径占位</th><td>折掉的图留一个路径占位，要看可以按路径再读</td></tr>
+        <tr><th>中文规则包</th><td>催压的几段话和压缩、展开、搜索三个工具的说明用中文；每次请求现读</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="cols">
+    <div class="blk">
+      <h3>越线以后怎么走</h3>
+      <ol class="plain">
+        <li>快到上限：加一段中文催压提示，告诉她有多满、哪些块最大。</li>
+        <li>到了上限：换成紧急那一档，先收小输出预算。</li>
+        <li>她压了：自己写摘要；原文留在账本里，以后能搜、能展开。</li>
+        <li>她没压、真用量越过物理窗口：才截最老的一段，记数、查原因。</li>
+      </ol>
+    </div>
+    <div class="blk">
+      <h3>代价和要防的事</h3>
+      <ul class="plain">
+        <li><strong>缓存：</strong>每压一次，被盖住的那段缓存失效，下次重付全价。压得太勤反而更贵。</li>
+        <li><strong>回想变少：</strong>折进块里的要靠搜和展开才看得到。</li>
+        <li><strong>折错：</strong>摘要可能写歪；原文还在，但要她想得起来去搜。</li>
+        <li><strong>熔断（计划中）：</strong>同一种失败连着出现，就暂停那一类动作，等人看过再开。</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>换模型时的五层约定</h3>
+  <ol class="plain">
+    <li><strong>图片：</strong>每条路由各有一次请求的图片上限；超了宿主会把最老的图永久换成占位。换之前先查上限。</li>
+    <li><strong>用量估计：</strong>按（提供方，模型）各记一个基线和校正量，估计值不超过物理窗口。</li>
+    <li><strong>思考块：</strong>不收别家思考块的模型，转发前剥掉；剥掉会让账本对不上号，所以配纪元多数守卫。</li>
+    <li><strong>缓存和限流：</strong>只观察、只记数，不跟着自动调。</li>
+    <li><strong>能用哪些模型：</strong>由一张批准过的模型表定，不在代码里写死；切之前先跑检查工具。</li>
+  </ol>
+</section>

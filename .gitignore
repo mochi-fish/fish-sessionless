@@ -1,0 +1,21 @@
+# 依赖和构建产物。单文件的桥由 build 现生成，不进仓库；规则包 packages/fish-pack-zh/dist/ 是要进仓库的，所以只忽略桥的 dist
+node_modules/
+/bridge/dist/
+*.tgz
+coverage/
+
+# 本机的东西
+.env
+.env.*
+!.env.example
+*.log
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+
+# 工具和测试留下的临时目录、锁
+tmp/
+.tmp/
+.locks/

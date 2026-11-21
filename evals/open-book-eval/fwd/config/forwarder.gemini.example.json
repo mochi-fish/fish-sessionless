@@ -1,0 +1,27 @@
+{
+  "_comment": "Gemini 臂的样板。价目表是估的（verified:false），caps 是美元，0 = 不许花。arm 为 real 时要 approvalsFile（格式见 approvals.example.json）。",
+  "arm": "real",
+  "approvalsFile": "approvals.example.json",
+  "stateDir": "<run>/fwd-state",
+  "certsDir": "<experiment>/cache/certs",
+  "target": {
+    "provider": "gemini",
+    "model": "gemini-4-argon",
+    "thinkingLevel": "LOW",
+    "maxTokens": 32768
+  },
+  "caps": {
+    "gemini": 0
+  },
+  "usageFeedback": "pinned",
+  "summaryPolicy": "refuse",
+  "transforms": {
+    "stripNudge": true,
+    "images": "placeholder",
+    "stripForeignThinking": true,
+    "localPaths": true
+  },
+  "plainHttp": {
+    "requireToken": true
+  }
+}

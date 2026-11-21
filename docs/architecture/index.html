@@ -1,0 +1,1192 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Sessionless 架构图</title>
+<meta name="description" content="fish-sessionless 的机制图解：一条生活时间线、只追加的证据账、按受众的工具门、水位。">
+<style>
+/* 一张自上而下的图：来话从上面进来，过桥和门，流过她那一条时间线；证据账在旁边记每条材料的来历。
+   正文单栏 60rem；窄屏时图在自己的容器里横向滚动，页面本身不横滚。只用系统字体，不加载外部资源。 */
+:root{
+  --bg:#f2f6f7; --surface:#fcfdfd; --surface-2:#e9eff1;
+  --ink:#0e1c24; --ink-2:#3f4f59; --muted:#62717a;
+  --line:#d3dce0; --line-2:#a9b7be;
+  --main:#2a78d6; --aud:#eb6834; --ledger:#1baf7a;
+  --main-wash:#e4eefb; --aud-wash:#fdeae1; --ledger-wash:#e0f4ec;
+  --font-display:"Songti SC","STSong","Noto Serif SC","Source Han Serif SC","SimSun",serif;
+  --font-body:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei UI","Microsoft YaHei","Noto Sans SC","Segoe UI",system-ui,sans-serif;
+  --font-mono:"Cascadia Code",Consolas,"SF Mono",Menlo,monospace;
+  --t-xs:.75rem; --t-sm:.8125rem; --t-base:.9375rem; --t-md:1.0625rem; --t-xl:1.75rem; --t-2xl:2.375rem;
+  --r:10px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0a1116; --surface:#121c22; --surface-2:#1a2831;
+    --ink:#e9eff2; --ink-2:#b5c1c9; --muted:#8a99a3;
+    --line:#27353d; --line-2:#44555f;
+    --main:#3987e5; --aud:#d95926; --ledger:#199e70;
+    --main-wash:#132840; --aud-wash:#391e13; --ledger-wash:#0f2b22;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0a1116; --surface:#121c22; --surface-2:#1a2831;
+  --ink:#e9eff2; --ink-2:#b5c1c9; --muted:#8a99a3;
+  --line:#27353d; --line-2:#44555f;
+  --main:#3987e5; --aud:#d95926; --ledger:#199e70;
+  --main-wash:#132840; --aud-wash:#391e13; --ledger-wash:#0f2b22;
+  color-scheme:dark;
+}
+
+*,*::before,*::after{ box-sizing:border-box }
+html{ background:var(--bg) }
+body{
+  margin:0; background:var(--bg); color:var(--ink);
+  font:var(--t-base)/1.75 var(--font-body);
+  padding-left:max(16px, env(safe-area-inset-left, 0px));
+  padding-right:max(16px, env(safe-area-inset-right, 0px));
+  padding-block:0 5rem;
+}
+.wrap{ max-width:60rem; margin-inline:auto }
+p{ margin:0 }
+a{ color:inherit }
+:focus-visible{ outline:2px solid var(--main); outline-offset:2px; border-radius:4px }
+
+h1{ font:700 var(--t-2xl)/1.25 var(--font-display); letter-spacing:.01em; text-wrap:balance; margin:0 }
+h2{ font:700 var(--t-xl)/1.3 var(--font-display); text-wrap:balance; margin:0 }
+h3{ font:700 var(--t-md)/1.45 var(--font-body); text-wrap:balance; margin:0 }
+.eyebrow{ font:600 var(--t-xs)/1.5 var(--font-mono); letter-spacing:.06em; color:var(--muted) }
+.lede{ font-size:var(--t-md); line-height:1.8; max-width:38em; color:var(--ink-2) }
+.lede strong{ color:var(--ink); font-weight:700 }
+.note{ font-size:var(--t-sm); color:var(--muted); max-width:44em }
+.note strong{ color:var(--ink-2) }
+code{ font:400 .86em var(--font-mono); background:var(--surface-2); padding:.08em .38em; border-radius:4px; word-break:break-word }
+
+.top{ padding-block:3rem 1.5rem; display:flex; flex-direction:column; gap:1rem }
+.nav{
+  position:sticky; top:0; z-index:5;
+  background:var(--bg); border-bottom:1px solid var(--line);
+  display:flex; gap:.25rem; overflow-x:auto; padding-block:.5rem; scrollbar-width:thin;
+}
+.nav a{ flex:none; text-decoration:none; font-size:var(--t-sm); color:var(--ink-2); padding:.3rem .7rem; border-radius:999px; white-space:nowrap }
+.nav a:hover{ background:var(--surface-2); color:var(--ink) }
+
+section{ padding-top:3.5rem; display:flex; flex-direction:column; gap:1.25rem; scroll-margin-top:3rem }
+section > h3{ margin-top:.75rem }
+.sec-head{ display:flex; flex-direction:column; gap:.6rem }
+
+.legend{ list-style:none; margin:0; padding:0; display:flex; flex-wrap:wrap; gap:.4rem 1.25rem }
+.st{ display:inline-flex; align-items:center; gap:.45em; font-size:var(--t-xs); line-height:1.4; color:var(--ink-2); white-space:nowrap }
+.st .sw{ flex:none; width:1.6em; height:.9em; border-radius:3px; border:1.5px solid var(--ink-2); display:inline-block }
+.st .sw.plan{ border-style:dashed; border-color:var(--line-2) }
+.pill{ display:inline-block; font:600 var(--t-xs)/1 var(--font-mono); padding:.32em .5em; border-radius:6px; border:1px solid var(--line-2); color:var(--ink-2); white-space:nowrap }
+.key{ display:inline-block; width:1.1em; height:3px; border-radius:2px; vertical-align:middle; margin-right:.35em }
+.key.main{ background:var(--main) } .key.aud{ background:var(--aud) } .key.ledger{ background:var(--ledger) }
+
+figure{ margin:0; background:var(--surface); border:1px solid var(--line); border-radius:var(--r); min-width:0 }
+.fig-tools{ display:flex; flex-wrap:wrap; align-items:center; gap:.5rem .75rem; padding:.85rem 1rem; border-bottom:1px solid var(--line) }
+.fig-tools .lab{ font-size:var(--t-sm); color:var(--muted) }
+.fig-scroll{ overflow-x:auto; padding:1rem }
+.fig-scroll svg{ display:block; width:100%; height:auto; min-width:46rem }
+.fig-scroll.narrow svg{ min-width:36rem }
+figcaption{ border-top:1px solid var(--line); padding:.8rem 1rem; font-size:var(--t-sm); color:var(--ink-2) }
+.seg{ display:flex; flex-wrap:wrap; gap:.4rem }
+.seg button{
+  font:600 var(--t-sm)/1 var(--font-body); padding:.55rem .85rem; border-radius:999px;
+  border:1px solid var(--line-2); background:var(--surface); color:var(--ink); cursor:pointer;
+}
+.seg button:hover{ border-color:var(--ink-2) }
+.seg button[aria-pressed="true"]{ background:var(--ink); color:var(--surface); border-color:var(--ink) }
+
+svg text{ font-family:var(--font-body); fill:var(--ink) }
+.tx{ font-size:13px } .tx-s{ font-size:11.5px; fill:var(--ink-2) } .tx-b{ font-size:13.5px; font-weight:700 }
+.tx-h{ font-family:var(--font-display); font-size:15px; font-weight:700 }
+.tx-m{ font-family:var(--font-mono); font-size:10.5px; font-weight:600; fill:var(--ink-2) }
+.tx-c{ font-size:11.5px; fill:var(--muted) }
+.tx-v{ writing-mode:vertical-rl; font-size:11.5px; fill:var(--ink-2); letter-spacing:.06em }
+.box{ fill:var(--surface); stroke:var(--ink-2); stroke-width:1.25 }
+.box.plan{ stroke:var(--line-2); stroke-dasharray:5 4 }
+.box.soft{ stroke:var(--line-2) }
+.band{ fill:var(--surface-2) }
+.w-main{ fill:var(--main-wash) } .w-aud{ fill:var(--aud-wash) } .w-ledger{ fill:var(--ledger-wash) }
+.s-main{ stroke:var(--main) } .s-aud{ stroke:var(--aud) } .s-ledger{ stroke:var(--ledger) }
+.f-main{ fill:var(--main) } .f-aud{ fill:var(--aud) } .f-ledger{ fill:var(--ledger) } .f-ink{ fill:var(--ink-2) }
+.ln{ fill:none; stroke:var(--ink-2); stroke-width:1.5 }
+.ln.main{ stroke:var(--main); stroke-width:2 } .ln.aud{ stroke:var(--aud); stroke-width:2 }
+.ln.ledger{ stroke:var(--ledger); stroke-width:1.5; stroke-dasharray:2 4; stroke-linecap:round }
+.ln.thin{ stroke-width:1; stroke:var(--line-2) }
+.dash{ stroke-dasharray:5 4 }
+.frame{ fill:none; stroke:var(--ink-2); stroke-width:1.25; stroke-dasharray:9 5; opacity:.7 }
+.gbar{ fill:var(--surface-2); stroke:var(--ink-2); stroke-width:1 }
+.gbar.m{ fill:var(--main-wash); stroke:var(--main) } .gbar.a{ fill:var(--aud-wash); stroke:var(--aud) } .gbar.l{ fill:var(--ledger-wash); stroke:var(--ledger) }
+.gbar.opt{ fill:none; stroke:var(--line-2); stroke-dasharray:5 4 }
+.pathfig [data-p]{ transition:opacity .2s }
+.pathfig[data-path="owner"] [data-p]:not([data-p~="owner"]),
+.pathfig[data-path="group"] [data-p]:not([data-p~="group"]),
+.pathfig[data-path="guest"] [data-p]:not([data-p~="guest"]),
+.pathfig[data-path="wake"] [data-p]:not([data-p~="wake"]){ opacity:.16 }
+@media (prefers-reduced-motion: reduce){ .pathfig [data-p]{ transition:none } }
+
+.steps{ list-style:none; margin:0; padding:1rem; display:grid; gap:.55rem; counter-reset:s; border-top:1px solid var(--line) }
+.steps li{ counter-increment:s; display:grid; grid-template-columns:1.7rem minmax(0,1fr); gap:.6rem; align-items:start; font-size:var(--t-sm); color:var(--ink-2) }
+.steps li::before{ content:counter(s); font:600 var(--t-xs)/1.6rem var(--font-mono); height:1.7rem; text-align:center; border-radius:50%; border:1px solid var(--line-2); color:var(--ink-2) }
+.steps li b{ color:var(--ink) }
+.steps-title{ padding:1rem 1rem 0; font-size:var(--t-sm); color:var(--ink); font-weight:700; border-top:1px solid var(--line) }
+.steps-title + .steps{ border-top:0; padding-top:.6rem }
+
+.rows{ background:var(--surface); border:1px solid var(--line); border-radius:var(--r); min-width:0 }
+.row{ display:grid; grid-template-columns:8.5rem minmax(0,1fr); gap:.35rem 1.25rem; padding:.95rem 1rem; border-top:1px solid var(--line) }
+.row:first-child{ border-top:0 }
+.row-k b{ font-size:var(--t-base); line-height:1.4 }
+.row-v{ display:flex; flex-direction:column; gap:.35rem; font-size:var(--t-sm); color:var(--ink-2); min-width:0 }
+.row-v strong{ color:var(--ink) }
+.row-v dl{ margin:0; display:grid; grid-template-columns:auto minmax(0,1fr); gap:.2rem .6rem }
+.row-v dt{ color:var(--muted); white-space:nowrap } .row-v dd{ margin:0 }
+@media (max-width:40rem){ .row{ grid-template-columns:minmax(0,1fr) } }
+
+.tbl-wrap{ overflow-x:auto; background:var(--surface); border:1px solid var(--line); border-radius:var(--r) }
+table{ border-collapse:collapse; width:100%; font-size:var(--t-sm) }
+th, td{ text-align:left; vertical-align:top; padding:.65rem .8rem; border-top:1px solid var(--line) }
+thead th{ border-top:0; color:var(--muted); font-weight:600; white-space:nowrap }
+tbody th{ font-weight:700; color:var(--ink); min-width:5.5em }
+td{ color:var(--ink-2) }
+.col-main{ box-shadow:inset 0 3px 0 var(--main) } .col-aud{ box-shadow:inset 0 3px 0 var(--aud) }
+
+.cols{ display:grid; grid-template-columns:repeat(auto-fit, minmax(16.5rem, 1fr)); gap:1rem }
+.blk{ display:flex; flex-direction:column; gap:.55rem; min-width:0; padding:1rem; background:var(--surface); border:1px solid var(--line); border-radius:var(--r) }
+.blk h3{ display:flex; flex-wrap:wrap; align-items:baseline; gap:.5rem }
+.plain{ margin:0; padding-left:1.15em; display:flex; flex-direction:column; gap:.35rem; font-size:var(--t-sm); color:var(--ink-2) }
+.plain strong{ color:var(--ink) }
+.callout{ background:var(--surface-2); border-radius:var(--r); padding:.8rem 1rem; font-size:var(--t-sm); color:var(--ink-2); max-width:48em }
+.callout strong{ color:var(--ink) }
+.fig-note{ padding:1rem; border-top:1px solid var(--line); display:flex; flex-direction:column; gap:.6rem; font-size:var(--t-sm); color:var(--ink-2) }
+.fig-note > b{ color:var(--ink) }
+.foot{ margin-top:3.5rem; padding-top:1.25rem; border-top:1px solid var(--line); font-size:var(--t-sm); color:var(--muted); display:flex; flex-direction:column; gap:.4rem }
+[hidden]{ display:none !important }
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="top">
+  <p class="eyebrow">fish-sessionless · 架构图 · 只画机制</p>
+  <h1>一份生活史，每次只带眼前合适的部分</h1>
+  <p class="lede">陪伴体只有一条生活时间线。旁边加一本只往后追加的<strong>证据账</strong>，记每条材料的来历和谁能看。主人那几轮照旧；群和来客那几轮，工具先过门，以后按「这一轮谁在听」现拼一份请求；出了错一律按「不给」。所有接线都做在 DSH 插件的口子上。</p>
+  <ul class="legend" aria-label="图例">
+    <li><span class="st"><span class="sw"></span>实线框：宿主和现有插件本来就有的</span></li>
+    <li><span class="st"><span class="sw plan"></span>虚线框：方案新加的，角上写阶段号</span></li>
+    <li><span class="st"><span class="key main"></span>主链：主人那几轮</span></li>
+    <li><span class="st"><span class="key aud"></span>受众链：群和来客</span></li>
+    <li><span class="st"><span class="key ledger"></span>证据账</span></li>
+  </ul>
+  <p class="note">这一页只讲机制，不讲哪一样已经部署在哪里。阶段号 P0 到 P6 是方案的先后，W 是水位那条线，见「分阶段」一节。陪伴体缺省叫「大肥鱼」，名字来自上游 dsh-fish；「主人」的具体称呼走配置。文字说明以仓库里 <code>docs/zh/</code> 的中文文档为正本。</p>
+</header>
+<nav class="nav" aria-label="本页目录">
+  <a href="#overview">总览</a>
+  <a href="#chains">两条链</a>
+  <a href="#gate">工具的门</a>
+  <a href="#memory">记忆和原话</a>
+  <a href="#water">水位</a>
+  <a href="#items">改约和淡忘</a>
+  <a href="#handoff">换册和崩溃</a>
+  <a href="#roadmap">分阶段</a>
+  <a href="#sources">借了什么</a>
+  <a href="#limits">插件的极限</a>
+</nav>
+<main>
+<section id="overview">
+  <div class="sec-head">
+    <p class="eyebrow">总览</p>
+    <h2>一句话从进来到回出去，经过哪些地方</h2>
+    <p class="lede">从上往下看：来话进来，过桥认人，进到她在 DSH 里的那条时间线；她每次要开口，请求先回到桥上，再经压缩代理发给模型。桥、dsh-fish、fish-ledger 是装在 DSH 宿主里的插件，图上用虚线大框圈出宿主；压缩代理是本机另一个进程。右边那本证据账一路在记。点图上方的按钮，可以只看某一种来话怎么走。</p>
+    <p class="note"><strong>几个叫法：</strong>她在 DSH 里的那条会话叫主会话，它的记录叫主日志；会话按「册」分本，现在这一本叫主册。主人那几轮发请求走的路叫主链（带的是整本主册）；群和来客各自的路叫受众链。「信封」是桥给每条来话打的标记：哪个渠道、哪个聊天、谁说的。主人说的记 a，别人说的记 m；x 是主人说的、但这条里带着别人的话，比如主人引用了别人。</p>
+  </div>
+
+  <figure class="pathfig" data-path="all">
+    <div class="fig-tools">
+      <span class="lab">看一轮怎么走</span>
+      <div class="seg" role="group" aria-label="选一种看法：全图，或者某一种来话这一轮怎么走">
+        <button type="button" data-path-btn="all" aria-pressed="true">全图</button>
+        <button type="button" data-path-btn="owner" aria-pressed="false">主人的私聊</button>
+        <button type="button" data-path-btn="group" aria-pressed="false">群里 @ 她</button>
+        <button type="button" data-path-btn="guest" aria-pressed="false">来客私聊</button>
+        <button type="button" data-path-btn="wake" aria-pressed="false">她自己醒来</button>
+      </div>
+    </div>
+    <div class="fig-scroll">
+      <svg viewBox="0 0 920 972" role="img" aria-label="总览图。来话从外面的世界进来，进到 DSH 宿主。宿主里装着桥、dsh-fish、fish-ledger 这些插件和她的主会话：过桥认人，进她的主会话。她每次开口，请求先回到桥上：主人那几轮走主链，照现有的改写放行；群和来客那几轮走按受众现拼的受众链。请求出了宿主，经本机另一个进程压缩代理发给模型，模型的回话回到她的会话。右边一本只追加的证据账记每条材料的来历和谁能看，最底下是永远不改的原物层。">
+        <defs>
+          <marker id="o-ah" viewBox="0 0 10 10" refX="9" refY="5" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="f-ink"/></marker>
+          <marker id="o-ah-m" viewBox="0 0 10 10" refX="9" refY="5" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="f-main"/></marker>
+          <marker id="o-ah-a" viewBox="0 0 10 10" refX="9" refY="5" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="f-aud"/></marker>
+          <marker id="o-ah-l" viewBox="0 0 10 10" refX="9" refY="5" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="f-ledger"/></marker>
+        </defs>
+
+        <!-- 外面的世界 -->
+        <rect x="40" y="14" width="610" height="78" rx="10" class="band"/>
+        <text x="56" y="35" class="tx-m">外面的世界</text>
+        <g data-p="owner"><rect x="56" y="46" width="152" height="32" rx="16" class="box s-main"/><text x="132" y="66.5" text-anchor="middle" class="tx">主人的私聊 · 桌面打字</text></g>
+        <g data-p="group"><rect x="218" y="46" width="112" height="32" rx="16" class="box s-aud"/><text x="274" y="66.5" text-anchor="middle" class="tx">群里有人 @ 她</text></g>
+        <g data-p="guest"><rect x="340" y="46" width="92" height="32" rx="16" class="box s-aud"/><text x="386" y="66.5" text-anchor="middle" class="tx">来客的私聊</text></g>
+        <g data-p="none"><rect x="442" y="46" width="92" height="32" rx="16" class="box soft"/><text x="488" y="66.5" text-anchor="middle" class="tx">其他渠道</text></g>
+        <g data-p="owner group guest">
+          <text x="598" y="60" text-anchor="middle" class="tx-s">她的回话</text>
+          <text x="598" y="76" text-anchor="middle" class="tx-s">从这里发出去</text>
+          <path d="M598,156 V94" class="ln" marker-end="url(#o-ah)"/>
+        </g>
+        <path d="M132,78 V154" class="ln" marker-end="url(#o-ah)" data-p="owner"/>
+        <path d="M274,78 V154" class="ln" marker-end="url(#o-ah)" data-p="group"/>
+        <path d="M386,78 V154" class="ln" marker-end="url(#o-ah)" data-p="guest"/>
+        <path d="M488,78 V154" class="ln" marker-end="url(#o-ah)" data-p="none"/>
+        <text x="141" y="111" class="tx-c">来话，带着信封</text>
+
+        <g transform="translate(0,26)">
+        <!-- DSH 宿主 -->
+        <rect x="30" y="100" width="632" height="500" rx="14" class="frame"/>
+        <text x="44" y="121" class="tx-h">DSH 宿主</text>
+        <text x="141" y="121" class="tx-s">桥、dsh-fish、fish-ledger 都是宿主里的插件</text>
+
+        <!-- 桥 -->
+        <rect x="40" y="130" width="610" height="96" rx="10" class="box"/>
+        <text x="56" y="154" class="tx-h">桥</text>
+        <text x="80" y="154" class="tx-s">local-bridge 插件：来话、发话、每一次请求都从它这里过</text>
+        <rect x="56" y="166" width="186" height="48" rx="8" class="box soft"/>
+        <text x="66" y="186" class="tx">认人，定这一轮谁在听</text>
+        <text x="66" y="203" class="tx-s">a 主人 · m 别人 · x 混着</text>
+        <rect x="252" y="166" width="186" height="48" rx="8" class="box plan"/>
+        <text x="262" y="186" class="tx">入口登记</text><text x="428" y="183" text-anchor="end" class="tx-m">P0</text>
+        <text x="262" y="203" class="tx-s">每条来话记进证据账</text>
+        <rect x="448" y="166" width="186" height="48" rx="8" class="box plan"/>
+        <text x="458" y="186" class="tx">出口核对</text><text x="624" y="183" text-anchor="end" class="tx-m">P2</text>
+        <text x="458" y="203" class="tx-s">只发给这一轮在听的人</text>
+
+        <g data-p="owner group guest none">
+          <path d="M330,226 V264" class="ln" marker-end="url(#o-ah)"/>
+          <text x="340" y="250" class="tx-c">包成插件消息，排队送进她的会话</text>
+        </g>
+
+        <!-- 她的主会话 -->
+        <rect x="40" y="266" width="610" height="150" rx="10" class="box"/>
+        <text x="56" y="290" class="tx-h">她的主会话</text>
+        <text x="142" y="290" class="tx-s">一份生活史，所有回复都落回这里</text>
+        <rect x="56" y="302" width="150" height="98" rx="8" class="box soft"/>
+        <text x="66" y="324" class="tx-b">dsh-fish（插件）</text>
+        <text x="66" y="344" class="tx-s">身份 · 事件流 · 便条</text>
+        <text x="66" y="362" class="tx-s">到点叫醒她</text>
+        <text x="66" y="388" class="tx-c">主人的话：P0.5 先数不写</text>
+        <path d="M206,351 H230" class="ln" marker-end="url(#o-ah)" data-p="wake"/>
+        <rect x="232" y="302" width="190" height="98" rx="8" class="box"/>
+        <text x="244" y="324" class="tx-b">她这一轮</text>
+        <text x="244" y="344" class="tx-s">想 → 用工具 → 再想 → 回话</text>
+        <text x="244" y="362" class="tx-s">不管哪种来话，都是同一个她</text>
+        <text x="244" y="388" class="tx-c">回复落进同一份主日志</text>
+        <g data-p="group guest">
+          <rect x="458" y="302" width="176" height="98" rx="8" class="box s-aud dash"/>
+          <text x="468" y="324" class="tx-b">工具的门</text><text x="624" y="321" text-anchor="end" class="tx-m">P1</text>
+          <text x="468" y="344" class="tx-s">群和来客那几轮：</text>
+          <text x="468" y="362" class="tx-s">能翻旧事的工具缺省挡</text>
+          <text x="468" y="388" class="tx-c">fish-ledger 管，桥兜底</text>
+          <path d="M424,351 H456" class="ln" marker-start="url(#o-ah)" marker-end="url(#o-ah)"/>
+        </g>
+
+        <!-- 请求出门前先回到桥上 -->
+        <path d="M330,416 V450" class="ln"/>
+        <text x="340" y="437" class="tx-c">她每次要开口，请求先回到桥上</text>
+        <g data-p="owner wake">
+          <path d="M330,450 H198 V484" class="ln main" marker-end="url(#o-ah-m)"/>
+          <text x="206" y="472" class="tx-s">主人 · 桌面 · 她自己醒来</text>
+          <rect x="56" y="486" width="284" height="104" rx="10" class="w-main s-main" stroke-width="1.5"/>
+          <text x="70" y="510" class="tx-b">主链 · 主人那几轮</text>
+          <text x="70" y="532" class="tx-s">整本主册：近期原文 + 压缩块</text>
+          <text x="70" y="550" class="tx-s">桥照现有的改写放行</text>
+          <text x="70" y="568" class="tx-s">她本人同意之前，不加新改写</text>
+          <path d="M198,590 V626" class="ln main" marker-end="url(#o-ah-m)"/>
+          <text x="206" y="617" class="tx-c">走主链</text>
+        </g>
+        <g data-p="group guest">
+          <path d="M330,450 H492 V484" class="ln aud" marker-end="url(#o-ah-a)"/>
+          <text x="500" y="472" class="tx-s">群 · 来客</text>
+          <rect x="350" y="486" width="284" height="104" rx="10" class="w-aud s-aud dash" stroke-width="1.5"/>
+          <text x="364" y="510" class="tx-b">受众链 · 群和来客那几轮</text><text x="622" y="507" text-anchor="end" class="tx-m">P2</text>
+          <text x="364" y="532" class="tx-s">从空开始，按这一轮谁在听现拼</text>
+          <text x="364" y="550" class="tx-s">只装这边能看的材料</text>
+          <text x="364" y="568" class="tx-s">拼不出来，这一轮就不发</text>
+          <path d="M492,590 V626" class="ln aud" marker-end="url(#o-ah-a)"/>
+          <text x="500" y="617" class="tx-c">标明是哪个群，各走各的链</text>
+        </g>
+
+        <!-- 压缩代理 -->
+        <rect x="40" y="628" width="610" height="112" rx="10" class="box"/>
+        <text x="56" y="652" class="tx-h">压缩代理</text>
+        <text x="132" y="652" class="tx-s">本机另一个进程；旧事她自己压，也自己翻得回原文</text>
+        <rect x="56" y="666" width="137" height="60" rx="8" class="box soft"/>
+        <text x="65" y="688" class="tx">她自己压缩</text>
+        <text x="65" y="708" class="tx-s">搜得到、展得开原文</text>
+        <rect x="203" y="666" width="137" height="60" rx="8" class="box plan"/>
+        <text x="212" y="688" class="tx">出口记哈希</text><text x="331" y="685" text-anchor="end" class="tx-m">P0</text>
+        <text x="212" y="708" class="tx-s">和桥那边对账</text>
+        <rect x="350" y="666" width="137" height="60" rx="8" class="box plan"/>
+        <text x="359" y="688" class="tx">按受众分链</text><text x="478" y="685" text-anchor="end" class="tx-m">P2</text>
+        <text x="359" y="708" class="tx-s">出口再滤一遍</text>
+        <rect x="497" y="666" width="137" height="60" rx="8" class="box plan"/>
+        <text x="506" y="688" class="tx">按会话设水位</text><text x="625" y="685" text-anchor="end" class="tx-m">W</text>
+        <text x="506" y="708" class="tx-s">越线只催她，不代写</text>
+
+        <path d="M345,740 V776" class="ln" marker-end="url(#o-ah)"/>
+        <text x="355" y="763" class="tx-c">真正发出去的那一份请求</text>
+
+        <!-- 模型 -->
+        <rect x="40" y="778" width="610" height="50" rx="10" class="box"/>
+        <text x="56" y="808" class="tx-h">模型</text>
+        <text x="98" y="808" class="tx-s">从批准过的模型表里选；每次请求带多少历史，由水位定上限</text>
+        <path d="M40,803 H22 V341 H38" class="ln" marker-end="url(#o-ah)"/>
+        <text x="9" y="506" class="tx-v">模型回话，或者要用工具</text>
+
+        <!-- 证据账 -->
+        <rect x="700" y="130" width="200" height="610" rx="10" class="w-ledger s-ledger dash" stroke-width="1.5"/>
+        <text x="716" y="156" class="tx-h">证据账</text><text x="886" y="153" text-anchor="end" class="tx-m">P0 起</text>
+        <text x="716" y="176" class="tx-s">桥、fish-ledger、代理三家写：</text>
+        <text x="716" y="192" class="tx-s">只往后追加，</text>
+        <text x="716" y="208" class="tx-s">只存编号和哈希，不存原文</text>
+        <text x="716" y="234" class="tx-b">每条材料记一行</text>
+        <text x="716" y="253" class="tx-s">· 去哪找原物</text>
+        <text x="716" y="270" class="tx-s">· 谁能看</text>
+        <text x="716" y="287" class="tx-s">· 谁说的，谁转述的</text>
+        <text x="716" y="304" class="tx-s">· 何时发生，何时得知</text>
+        <text x="716" y="321" class="tx-s">· 替代了哪一条</text>
+        <text x="716" y="348" class="tx-b">账上还记这些</text>
+        <rect x="716" y="360" width="168" height="48" rx="8" class="box plan"/>
+        <text x="726" y="380" class="tx">请求清单</text><text x="874" y="377" text-anchor="end" class="tx-m">P0 · P2</text>
+        <text x="726" y="398" class="tx-s">这次请求带了哪些材料</text>
+        <rect x="716" y="416" width="168" height="48" rx="8" class="box plan"/>
+        <text x="726" y="436" class="tx">送达账</text><text x="874" y="433" text-anchor="end" class="tx-m">P0 · P3</text>
+        <text x="726" y="454" class="tx-s">每段话发没发到</text>
+        <rect x="716" y="472" width="168" height="48" rx="8" class="box plan"/>
+        <text x="726" y="492" class="tx">墓碑</text><text x="874" y="489" text-anchor="end" class="tx-m">P3.5</text>
+        <text x="726" y="510" class="tx-s">被撤回的，盖住不再给</text>
+        <rect x="716" y="528" width="168" height="48" rx="8" class="box plan"/>
+        <text x="726" y="548" class="tx">事项卡</text><text x="874" y="545" text-anchor="end" class="tx-m">P4</text>
+        <text x="726" y="566" class="tx-s">约定现在到哪一步了</text>
+        <rect x="716" y="584" width="168" height="48" rx="8" class="box plan"/>
+        <text x="726" y="604" class="tx">交接包</text><text x="874" y="601" text-anchor="end" class="tx-m">P5</text>
+        <text x="726" y="622" class="tx-s">换册时带过去什么</text>
+        <text x="716" y="662" class="tx-s">群和来客那几轮：</text>
+        <text x="716" y="679" class="tx-s">凭这本账决定给不给</text>
+        <text x="716" y="704" class="tx-s">主人那几轮：只记，不拦</text>
+
+        <path d="M650,178 H698" class="ln ledger" marker-end="url(#o-ah-l)"/>
+        <text x="675" y="171" text-anchor="middle" class="tx-c">登记</text>
+        <g data-p="group guest">
+          <path d="M636,351 H698" class="ln ledger" marker-start="url(#o-ah-l)" marker-end="url(#o-ah-l)"/>
+          <text x="675" y="344" text-anchor="middle" class="tx-c">查账</text>
+          <path d="M698,538 H636" class="ln ledger" marker-end="url(#o-ah-l)"/>
+          <text x="675" y="531" text-anchor="middle" class="tx-c">挑材料</text>
+        </g>
+        <path d="M650,696 H698" class="ln ledger" marker-end="url(#o-ah-l)"/>
+        <text x="675" y="689" text-anchor="middle" class="tx-c">对账</text>
+        <path d="M800,740 V866" class="ln ledger" marker-end="url(#o-ah-l)"/>
+        <text x="790" y="796" text-anchor="end" class="tx-c">账里只有指针，</text>
+        <text x="790" y="812" text-anchor="end" class="tx-c">要原文回原处取</text>
+
+        <!-- 原物层 -->
+        <rect x="40" y="868" width="860" height="64" rx="10" class="band"/>
+        <text x="56" y="894" class="tx-h">原物层</text>
+        <text x="112" y="894" class="tx-s">只读。原话、原事件、压缩块都留在各自原处，永远不改、不复制</text>
+        <text x="56" y="917" class="tx-s">DSH 会话日志　·　dsh-fish 事件流　·　压缩代理的账本　·　平台消息编号</text>
+        </g>
+      </svg>
+    </div>
+
+    <div class="fig-note" data-for="all">
+      <b>三条不变的线</b>
+      <ul class="plain">
+        <li><strong>她只有一份生活史。</strong>不按房间把她拆成几个人；不管走哪条链，回复都落回同一份主日志。</li>
+        <li><strong>主人那几轮照旧。</strong>桥照现有的改写放行，她本人同意之前不加新的改写；门不给主人那几轮加限制。</li>
+        <li><strong>群和来客那几轮，出错一律按「不给」。</strong>门所在的插件没给某次调用留判定，桥按同一张表自己判；读者算不出，按最严处理；P2 以后请求拼不出来，这一轮就不发。</li>
+      </ul>
+    </div>
+
+    <div data-for="owner" hidden>
+      <p class="steps-title">主人的私聊、桌面打字：走主链，一切照旧，只是旁边多了记账</p>
+      <ol class="steps">
+        <li><span>主人在私聊或桌面上跟她说话。</span></li>
+        <li><span><b>桥认出是主人</b>（信封记号对，聊天地址也等于配置里的主人私聊），这一轮的读者是「主人和她」。<span class="pill">P0</span> 起在证据账登记这条来话。</span></li>
+        <li><span>请求出门前，<b>桥照现有的改写放行</b>。她本人同意之前，不加新改写。</span></li>
+        <li><span>走主链：近期原文加压缩块，发给模型。<span class="pill">P0</span> 起代理在出口记一份哈希，和桥那边对账。</span></li>
+        <li><span>她用工具<b>照旧</b>：门不给主人那几轮加任何限制。「主人那一轮被误挡」的次数必须是 0。</span></li>
+        <li><span>回话每段先登记、再发、存平台编号（<span class="pill">P0</span> 登记，<span class="pill">P3</span> 处理「不知道到没到」）。回复照常落进主日志。</span></li>
+        <li><span><span class="pill">P0.5</span> 起，桥把主人这句话洗干净，先只数、不写进她的事件流；门真挡以后，才真的写进去。</span></li>
+        <li><span><span class="pill">P4</span> 起，别的私聊里有人转述跟主人有关的事，会用事项卡带到这里：标出是谁转的，只算「待主人确认」。</span></li>
+      </ol>
+    </div>
+
+    <div data-for="group" hidden>
+      <p class="steps-title">群里有人 @ 她：P1、P2 都做完以后的走法</p>
+      <ol class="steps">
+        <li><span>群友在群里 @ 她。</span></li>
+        <li><span><b>桥定读者：这个群的人和她。</b>拿不到成员名单，就把整个群当成一个人。</span></li>
+        <li><span>请求出门前，桥<b>从空开始现拼一份</b>：系统段、本群能看的便条、工具表、本群近期原话、这条链上她自己压的块。<span class="pill">P2</span></span></li>
+        <li><span><b>不放进去的：</b>她在主册写的摘要、话题、回想、写下的话，以及任何私聊内容。</span></li>
+        <li><span>请求带着一个标明「这一轮是哪个群」的头发给代理，代理按它记到这个群自己的链上，再到模型。</span></li>
+        <li><span>她用工具，<b>每次都过门</b>：翻旧事只许翻这个群自己的；回想她事件流的工具一律挡，回那句固定的照实话；便条和日记只能写不能读；表里没有的缺省挡。<span class="pill">P1</span> <span class="pill">P2</span></span></li>
+        <li><span>她回话：目标必须在这一轮的读者里；想对别的人说话，另起一轮。回复落回同一份主日志。</span></li>
+        <li><span><b>出错时这一轮不发。</b>下次主人那一轮告诉主人哪个群有一轮没答上，不带内容。</span></li>
+      </ol>
+      <div class="fig-note"><p><strong>P2 之前不是这样。</strong>只有 P1 的时候，群那一轮跑在主链上，第一次请求带着整本主册；门只堵得住用了工具以后的那几次。所以 P1 和 P2 中间不插别的阶段。</p></div>
+    </div>
+
+    <div data-for="guest" hidden>
+      <p class="steps-title">来客私聊：和群一样单拼一份，另外多一条「转述」的规矩</p>
+      <ol class="steps">
+        <li><span>来客私聊找她。</span></li>
+        <li><span><b>桥定读者：这位来客和她。</b></span></li>
+        <li><span>和群一样现拼请求，走这位来客自己的链；从空开始。<span class="pill">P2</span></span></li>
+        <li><span>工具过同一道门；翻聊天记录只许翻这位来客的。<span class="pill">P1</span></span></li>
+        <li><span>她只能回给这位来客；回复落回主日志。</span></li>
+        <li><span>来客说了跟主人有关的事：证据账记成<b>「待主人确认的转述」</b>，标出是谁转的。<span class="pill">P4</span></span></li>
+        <li><span>到主人那一轮，事项卡只带这一件事过去。<b>来客私聊里别的内容不带。</b></span></li>
+      </ol>
+    </div>
+
+    <div data-for="wake" hidden>
+      <p class="steps-title">她自己醒来、夜里那一轮：读者只有她自己</p>
+      <ol class="steps">
+        <li><span>dsh-fish 到点叫醒她，或者夜里那一轮。这些消息没有信封。</span></li>
+        <li><span><b>读者只有她自己</b>，所以全部材料她都能看；走主链。</span></li>
+        <li><span>她想想、翻翻、写便条和日记，都照旧。</span></li>
+        <li><span>想往群里说话：P2 以后<b>不在这一轮直接发。</b>桥另起一轮，按群能看的材料重拼，她在那一轮重新写。<span class="pill">P2</span></span></li>
+        <li><span>这套规矩会改变她的做法，要她本人同意。</span></li>
+        <li><span><span class="pill">P4</span> 起，已经取消的事不再出现在叫醒里。</span></li>
+      </ol>
+    </div>
+    <figcaption>实线框是宿主和现有插件本来就有的；虚线小框是方案新加的部分，角上写着在哪个阶段做。最外面的虚线大框是 DSH 宿主：桥、dsh-fish、fish-ledger 都是装在宿主里的插件；压缩代理和证据账的文件在宿主外面。蓝色是主人那几轮走的主链，橙色是群和来客那几轮走的受众链，绿色点线是证据账在记账或被查。</figcaption>
+  </figure>
+</section>
+<section id="chains">
+  <div class="sec-head">
+    <p class="eyebrow">两条链</p>
+    <h2>不拆她，只拆「发请求走的路」</h2>
+    <p class="lede">只有一条会话时，三种来话都挤在一条链里：群那一轮的模型拿到的请求，带着主人私聊的历史。方案不把她拆成几个会话，而是让群和来客那几轮各走一条<strong>受众链</strong>：从空开始，只装这一边能看的材料。回复照样落回同一份主日志。</p>
+  </div>
+
+  <figure>
+    <div class="fig-scroll narrow">
+      <svg viewBox="0 0 760 260" role="img" aria-label="前后对比。左边：只有一条链时，主人的私聊、群、来客三种来话都进同一条主链，请求里带着整本主册。右边：分链以后，主人那几轮走主链，群和来客各走自己的受众链，只装这一边能看的材料；所有回复都落回同一份主日志。">
+        <defs>
+          <marker id="c-ah" viewBox="0 0 10 10" refX="9" refY="5" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="f-ink"/></marker>
+        </defs>
+        <text x="20" y="24" class="tx-h">只有一条链</text>
+        <rect x="20" y="40" width="90" height="28" rx="14" class="box s-main"/><text x="65" y="59" text-anchor="middle" class="tx-s">主人</text>
+        <rect x="120" y="40" width="90" height="28" rx="14" class="box s-aud"/><text x="165" y="59" text-anchor="middle" class="tx-s">群</text>
+        <rect x="220" y="40" width="90" height="28" rx="14" class="box s-aud"/><text x="265" y="59" text-anchor="middle" class="tx-s">来客</text>
+        <path d="M65,68 V108" class="ln" marker-end="url(#c-ah)"/>
+        <path d="M165,68 V108" class="ln" marker-end="url(#c-ah)"/>
+        <path d="M265,68 V108" class="ln" marker-end="url(#c-ah)"/>
+        <rect x="20" y="110" width="290" height="60" rx="10" class="w-main s-main" stroke-width="1.5"/>
+        <text x="34" y="134" class="tx-b">主链</text>
+        <text x="34" y="154" class="tx-s">每一轮都带整本主册，包括主人的私聊</text>
+        <path d="M165,170 V206" class="ln" marker-end="url(#c-ah)"/>
+        <rect x="20" y="208" width="290" height="36" rx="10" class="band"/>
+        <text x="165" y="231" text-anchor="middle" class="tx-s">同一份主日志</text>
+
+        <path d="M370,20 V244" class="ln thin"/>
+
+        <text x="420" y="24" class="tx-h">分链以后</text><text x="740" y="24" text-anchor="end" class="tx-m">P2</text>
+        <rect x="420" y="40" width="90" height="28" rx="14" class="box s-main"/><text x="465" y="59" text-anchor="middle" class="tx-s">主人</text>
+        <rect x="530" y="40" width="90" height="28" rx="14" class="box s-aud"/><text x="575" y="59" text-anchor="middle" class="tx-s">群</text>
+        <rect x="640" y="40" width="90" height="28" rx="14" class="box s-aud"/><text x="685" y="59" text-anchor="middle" class="tx-s">来客</text>
+        <path d="M465,68 V108" class="ln main" marker-end="url(#c-ah)"/>
+        <path d="M575,68 V108" class="ln aud" marker-end="url(#c-ah)"/>
+        <path d="M685,68 V108" class="ln aud" marker-end="url(#c-ah)"/>
+        <rect x="420" y="110" width="90" height="60" rx="10" class="w-main s-main" stroke-width="1.5"/>
+        <text x="465" y="134" text-anchor="middle" class="tx-b">主链</text>
+        <text x="465" y="154" text-anchor="middle" class="tx-s">整本主册</text>
+        <rect x="530" y="110" width="90" height="60" rx="10" class="w-aud s-aud dash" stroke-width="1.5"/>
+        <text x="575" y="134" text-anchor="middle" class="tx-b">群的链</text>
+        <text x="575" y="154" text-anchor="middle" class="tx-s">本群能看的</text>
+        <rect x="640" y="110" width="90" height="60" rx="10" class="w-aud s-aud dash" stroke-width="1.5"/>
+        <text x="685" y="134" text-anchor="middle" class="tx-b">来客的链</text>
+        <text x="685" y="154" text-anchor="middle" class="tx-s">这位来客能看的</text>
+        <path d="M465,170 V206" class="ln" marker-end="url(#c-ah)"/>
+        <path d="M575,170 V206" class="ln" marker-end="url(#c-ah)"/>
+        <path d="M685,170 V206" class="ln" marker-end="url(#c-ah)"/>
+        <rect x="420" y="208" width="310" height="36" rx="10" class="band"/>
+        <text x="575" y="231" text-anchor="middle" class="tx-s">还是同一份主日志</text>
+      </svg>
+    </div>
+    <figcaption>受众链只是「发请求走的路」，不是另一个她。受众链从空开始、只往后追加，不在同一份请求上按读者临时删消息（删一次，缓存就整段失效）。</figcaption>
+  </figure>
+
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th></th><th class="col-main">主链</th><th class="col-aud">受众链</th></tr></thead>
+      <tbody>
+        <tr><th>谁走这条</th><td>主人、桌面、她自己醒来的那几轮</td><td>每个群、每位来客各一条</td></tr>
+        <tr><th>里面装什么</th><td>整本主册：近期原文 + 她压的块</td><td>系统段、这一边能看的便条、工具表、这个聊天的近期原话、这条链上她自己压的块</td></tr>
+        <tr><th>不装什么</th><td>不另外删</td><td>她在主册写的摘要、话题、回想、写下的话；任何私聊内容</td></tr>
+        <tr><th>桥怎么处理</th><td>照现有的改写放行；新改写要她本人同意</td><td>从空开始现拼；拼不出来这一轮就不发</td></tr>
+        <tr><th>工具</th><td>照旧，门不加限制</td><td>每次过门；翻旧事只许翻这条链自己的</td></tr>
+        <tr><th>满了怎么办</th><td>水位：催她自己压</td><td>她在这条链上自己压；主链不动</td></tr>
+        <tr><th>出了错</th><td>照旧放行</td><td>按「不给」；下次主人那一轮告诉主人哪一轮没答上，不带内容</td></tr>
+        <tr><th>回复落在哪</th><td colspan="2">都落回同一份主日志</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>一条材料能不能进这一轮</h3>
+  <ul class="plain">
+    <li><strong>材料的读者要盖住这一轮的每一个读者。</strong>一轮里混进了不同的人，取交集，最严的说了算。</li>
+    <li><strong>原话</strong>按它进来时的信封算。没有标签的旧材料按最严，只给她。</li>
+    <li><strong>派生物</strong>（事项卡、交接包）取所有来源读者的交集；来源不明按最严。</li>
+    <li><strong>她自己写的东西</strong>（块摘要、话题、用工具写下的话）按她写的时候看得到的最严算，不按它盖住的原话算。光按来源筛不够：「块里全是群里的话，摘要却写了私聊」这种筛不掉。</li>
+    <li><strong>混在一起的旧块</strong>不靠删：要给群看，就从群能看的原话重新写一份「受众版」，作者标成代写，放在旁边，原块不动，要主人批。</li>
+    <li><strong>身份段里现算的几段</strong>按读者逐次过滤；做不到就整段不给。</li>
+  </ul>
+</section>
+<section id="gate">
+  <div class="sec-head">
+    <p class="eyebrow">工具的门 · P1</p>
+    <h2>群里那一轮，她伸手翻旧事时先过一道门</h2>
+    <p class="lede">请求拼得再干净，她一用工具，旧事就可能从工具结果回到下一次请求。所以群和来客那几轮，能翻到过去的工具<strong>缺省挡住</strong>，只放行逐个核过的。判定是纯函数，fish-ledger 插件挂在宿主「工具执行前」的口子上，桥在自己的检查里兜底。</p>
+  </div>
+
+  <figure>
+    <div class="fig-scroll">
+      <svg viewBox="0 0 900 360" role="img" aria-label="工具的门怎么判。她要用一个工具时，先看 heard 有没有真写过：写过而且工具是翻她事件流的，这一轮又不是主人的，就挡。再看这一轮是哪一类：主人和她自己的轮放行；维护助手的轮照表算但只记不挡；群、来客和认不出来的轮查表。这个工具她根本看不到，就交给宿主照旧报没有。表里写放行就放，写挡就挡，写按参数就看参数，表里没有的挡。挡下时回一句固定的照实话，证据账记一行。">
+        <defs>
+          <marker id="g-ah" viewBox="0 0 10 10" refX="9" refY="5" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="f-ink"/></marker>
+        </defs>
+        <rect x="20" y="20" width="150" height="44" rx="22" class="box"/>
+        <text x="95" y="47" text-anchor="middle" class="tx-b">她要用一个工具</text>
+        <path d="M170,42 H206" class="ln" marker-end="url(#g-ah)"/>
+
+        <rect x="208" y="20" width="196" height="44" rx="8" class="box"/>
+        <text x="306" y="39" text-anchor="middle" class="tx">heard 真写过？</text>
+        <text x="306" y="56" text-anchor="middle" class="tx-s">而且是翻事件流的那个</text>
+        <path d="M404,42 H440" class="ln" marker-end="url(#g-ah)"/>
+        <text x="422" y="34" text-anchor="middle" class="tx-c">否</text>
+
+        <rect x="442" y="20" width="176" height="44" rx="8" class="box"/>
+        <text x="530" y="39" text-anchor="middle" class="tx">这一轮是哪一类</text>
+        <text x="530" y="56" text-anchor="middle" class="tx-s">由信封定，不由模型猜</text>
+
+        <path d="M306,64 V322 H558" class="ln aud" marker-end="url(#g-ah)"/>
+        <text x="316" y="96" class="tx-c">是，而且不是 open</text>
+
+        <path d="M500,64 V100" class="ln main" marker-end="url(#g-ah)"/>
+        <rect x="430" y="102" width="140" height="44" rx="8" class="w-main s-main" stroke-width="1.5"/>
+        <text x="500" y="121" text-anchor="middle" class="tx-b">open</text>
+        <text x="500" y="138" text-anchor="middle" class="tx-s">主人 · 她自己 → 放行</text>
+
+        <path d="M560,64 V80 H660 V100" class="ln" marker-end="url(#g-ah)"/>
+        <rect x="590" y="102" width="140" height="44" rx="8" class="box soft"/>
+        <text x="660" y="121" text-anchor="middle" class="tx-b">watch</text>
+        <text x="660" y="138" text-anchor="middle" class="tx-s">维护助手 → 只记不挡</text>
+
+        <path d="M618,42 H780 V100" class="ln aud" marker-end="url(#g-ah)"/>
+        <rect x="740" y="102" width="140" height="44" rx="8" class="w-aud s-aud" stroke-width="1.5"/>
+        <text x="810" y="121" text-anchor="middle" class="tx-b">gate</text>
+        <text x="810" y="138" text-anchor="middle" class="tx-s">群 · 来客 · 认不出</text>
+
+        <path d="M810,146 V176" class="ln aud" marker-end="url(#g-ah)"/>
+        <rect x="660" y="178" width="220" height="44" rx="8" class="box"/>
+        <text x="770" y="197" text-anchor="middle" class="tx">她看得到这个工具吗</text>
+        <text x="770" y="214" text-anchor="middle" class="tx-s">看不到：交给宿主照旧报「没有」</text>
+        <path d="M770,222 V244" class="ln" marker-end="url(#g-ah)"/>
+        <rect x="560" y="246" width="320" height="34" rx="8" class="box"/>
+        <text x="720" y="268" text-anchor="middle" class="tx">查表：放行 · 按参数 · 挡；表里没有的挡</text>
+        <path d="M720,280 V298" class="ln aud" marker-end="url(#g-ah)"/>
+
+        <rect x="560" y="300" width="320" height="44" rx="8" class="w-aud s-aud dash" stroke-width="1.5"/>
+        <text x="720" y="319" text-anchor="middle" class="tx-b">挡：回一句固定的照实话</text>
+        <text x="720" y="336" text-anchor="middle" class="tx-s">证据账记一行「门造的结果」</text>
+
+        <text x="20" y="170" class="tx-b">三档开关 gate.json</text>
+        <text x="20" y="192" class="tx-s">off：不判</text>
+        <text x="20" y="210" class="tx-s">audit：照判，只记不挡</text>
+        <text x="20" y="228" class="tx-s">enforce：照挡</text>
+        <text x="20" y="254" class="tx-s">读不出：线上按 enforce</text>
+        <text x="20" y="272" class="tx-s">副本和测试按 off</text>
+        <text x="20" y="298" class="tx-s">插件没留判定：桥兜底</text>
+      </svg>
+    </div>
+    <figcaption>门只回「拒绝」，不回「问用户」：在全放行的权限设置下，「问用户」会落成「用户拒绝了」，那是假话。挡下的调用也回一个结果，模型那边「调用」和「结果」必须成对。</figcaption>
+  </figure>
+
+  <div class="cols">
+    <div class="blk">
+      <h3>群和来客那几轮：放行的</h3>
+      <ul class="plain">
+        <li>发话（目标要在这一轮的读者里，P2 核对）</li>
+        <li>压缩（P2 以后压的是这条链自己的）</li>
+        <li>写便条（只挡「读」）</li>
+        <li>逐个核过的公开内容工具</li>
+        <li>外部记忆库（Mem）的工具：每一轮都放，是主人定的取舍</li>
+        <li><strong>按参数：</strong>翻聊天记录只许翻这个聊天的；读图、发图只许这个聊天里的；表情包只认图库里的</li>
+      </ul>
+    </div>
+    <div class="blk">
+      <h3>群和来客那几轮：挡住的</h3>
+      <ul class="plain">
+        <li>展开旧块、搜旧块、看块列表</li>
+        <li>翻她自己的事件流（记不下是哪个群、和谁）</li>
+        <li>读便条、搜日记、读家目录和工作区的文件、读证据账</li>
+        <li>改写文件（宿主会把说明文件读进以后的每一轮）</li>
+        <li>网页搜索、网页抓取（做成开关，缺省关）</li>
+        <li>帮手、定时任务这类</li>
+        <li>表里没有的</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="callout"><p><strong>挡下时回的话，大意是：</strong>「这一下在这一轮不开（这一轮不只有主人和你），没有结果给你。没拿到不等于没有，别把这一下记成『查过、没有』。」主人的称呼取自配置。不说「没找到」：门造的结果会进她的生活史，不该变成假记忆。也不指她「换个时候再用」。代价是她转述时群友会知道有这样的划分：泄的是机制，不是内容。</p></div>
+
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>出了什么错</th><th class="col-aud">群和来客那几轮</th><th class="col-main">主人那几轮</th></tr></thead>
+      <tbody>
+        <tr><th>插件没加载</th><td>桥按同一张表挡</td><td>放行</td></tr>
+        <tr><th>读者算不出</th><td>按最严挡</td><td>能确定是主人的轮才放行</td></tr>
+        <tr><th>开关读不出</th><td>线上按 enforce</td><td>放行</td></tr>
+        <tr><th>两边判断不一致</th><td>按严的</td><td>放行，计数</td></tr>
+        <tr><th>判定代码出错</th><td>挡</td><td>放行</td></tr>
+        <tr><th>主人那一轮被误挡</th><td>照挡</td><td>自动把「认不清」那几种退回只记，人看过再恢复</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="note">先 audit 只记一段时间，看清群和来客那几轮本该挡几次、主人那几轮误挡是不是 0，告诉她、听她怎么说，主人看过再切 enforce。只记的时候不记正文、参数、路径、号码、群名。</p>
+</section>
+<section id="memory">
+  <div class="sec-head">
+    <p class="eyebrow">记忆和原话</p>
+    <h2>折掉的不等于丢掉：原话一直在，账上记着去哪找</h2>
+    <p class="lede">她眼前的那份请求每一轮现拼；往下是她和规则整理出来的派生物；再往下是只存指针的证据账；最底下是原物层，永远不改、不复制。要原话，顺着指针回原处取。</p>
+  </div>
+
+  <figure>
+    <div class="fig-scroll narrow">
+      <svg viewBox="0 0 760 330" role="img" aria-label="四层结构。最上面是她眼前的那份请求，每一轮现拼。往下是派生物：她自己写的压缩块摘要、规则生成的事项卡和交接包、她写的便条。再往下是证据账，只存指针、读者和哈希。最底下是原物层：DSH 会话日志、dsh-fish 事件流、压缩代理的账本、平台消息编号，只读。右边三条找回原话的路：按会话和序号查会话日志；她用搜索和展开工具查压缩代理；用回想工具翻事件流。">
+        <defs>
+          <marker id="m-ah" viewBox="0 0 10 10" refX="9" refY="5" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="f-ink"/></marker>
+        </defs>
+        <rect x="20" y="16" width="520" height="56" rx="10" class="box"/>
+        <text x="36" y="40" class="tx-h">她眼前的请求</text>
+        <text x="36" y="60" class="tx-s">每一轮现拼：近期原文 + 压缩块 + 系统段；受众链只装这一边能看的</text>
+        <path d="M280,72 V92" class="ln" marker-start="url(#m-ah)"/>
+        <rect x="20" y="94" width="520" height="56" rx="10" class="box soft"/>
+        <text x="36" y="118" class="tx-h">派生物</text>
+        <text x="36" y="138" class="tx-s">她自己写的块摘要 · 事项卡 · 交接包 · 她写的便条（都标着来源）</text>
+        <path d="M280,150 V170" class="ln" marker-start="url(#m-ah)"/>
+        <rect x="20" y="172" width="520" height="56" rx="10" class="w-ledger s-ledger dash" stroke-width="1.5"/>
+        <text x="36" y="196" class="tx-h">证据账</text>
+        <text x="36" y="216" class="tx-s">只存指针、读者、带盐的哈希；只追加</text>
+        <path d="M280,228 V248" class="ln ledger" marker-end="url(#m-ah)"/>
+        <rect x="20" y="250" width="520" height="64" rx="10" class="band"/>
+        <text x="36" y="274" class="tx-h">原物层（只读）</text>
+        <text x="36" y="296" class="tx-s">DSH 会话日志 · dsh-fish 事件流 · 压缩代理的账本 · 平台消息编号</text>
+
+        <text x="580" y="40" class="tx-b">三条找回原话的路</text>
+        <rect x="580" y="56" width="164" height="60" rx="8" class="box"/>
+        <text x="590" y="78" class="tx">① 会话日志</text>
+        <text x="590" y="98" class="tx-s">按会话和序号定位</text>
+        <rect x="580" y="126" width="164" height="60" rx="8" class="box"/>
+        <text x="590" y="148" class="tx">② 压缩代理</text>
+        <text x="590" y="168" class="tx-s">她自己搜、展开旧块</text>
+        <rect x="580" y="196" width="164" height="60" rx="8" class="box"/>
+        <text x="590" y="218" class="tx">③ 事件流</text>
+        <text x="590" y="238" class="tx-s">回想工具翻「听到过」</text>
+        <path d="M662,256 V280 H542" class="ln" marker-end="url(#m-ah)"/>
+      </svg>
+    </div>
+    <figcaption>派生物从原物整理出来，旁边标着来源；原物不动。「记着却想不起」主要靠第 ② 条：在合适的地方提醒她可以搜，并让中文搜索好用。</figcaption>
+  </figure>
+
+  <h3>她为什么会忘，这套方案各管哪一种</h3>
+  <div class="rows">
+    <div class="row"><div class="row-k"><b>① 记错了</b></div><div class="row-v"><span>摘要写歪，和原话不一样。</span><span><strong>管法：</strong>原文留在压缩代理的账本里，搜得到、展得开；事项卡用追加的新卡取代旧说法。</span></div></div>
+    <div class="row"><div class="row-k"><b>② 该忘的没忘</b></div><div class="row-v"><span>约定早改了，旧说法还在眼前。</span><span><strong>管法：</strong>事项卡（P4）：状态变了追加一张，7 天没人提就「搁着」；撤回的用墓碑盖住（P3.5）。</span></div></div>
+    <div class="row"><div class="row-k"><b>③ 记着却想不起</b></div><div class="row-v"><span>原文在，她没想到去找。</span><span><strong>管法：</strong>提醒她可以搜；中文检索的分词和前后文；相对日期旁边注上绝对日期。</span></div></div>
+    <div class="row"><div class="row-k"><b>④ 压根没记下</b></div><div class="row-v"><span>主人在聊天软件上的话，经桥送进来，被当成插件消息丢掉，从来不进她的事件流。</span><span><strong>管法：</strong>heard（P0.5）：桥用 dsh-fish 自己的函数洗干净再写；先只数，门真挡以后才真写；开关失败即关。</span></div></div>
+  </div>
+
+  <h3>证据账的一行记什么</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>记什么</th><th>大白话</th></tr></thead>
+      <tbody>
+        <tr><th>种类</th><td>原话、工具结果、门造的结果、请求清单、用量、送达、操作……</td></tr>
+        <tr><th>去哪找原物</th><td>渠道、聊天（假名）、会话、消息编号、调用编号、平台消息编号</td></tr>
+        <tr><th>作者和转述人</th><td>谁说的；经谁转的。主人、别人、混合、宿主、她自己……</td></tr>
+        <tr><th>读者</th><td>谁能看；按什么定的（信封、按发去的聊天、按规则、归不了类按最严）</td></tr>
+        <tr><th>两个时间</th><td>事情什么时候发生；写者什么时候知道</td></tr>
+        <tr><th>来源和替代</th><td>从哪几条派生出来；替代了哪一条。只追加，不改旧行</td></tr>
+        <tr><th>哈希和大小</th><td>带盐的 HMAC，不用裸 sha256；字数或字节数。不存原文</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+<section id="water">
+  <div class="sec-head">
+    <p class="eyebrow">水位 · W</p>
+    <h2>每次带多少旧事去问模型：设上限，越线只催她自己压</h2>
+    <p class="lede">历史每天都在长。水位给每次请求带的历史设一个上限。越线时，只在她的上下文里加中文的催压提示，<strong>不让别的模型替她写摘要</strong>；截断只是兜底，而且只认提供方报的真用量。水位做在压缩代理的 fork 里，所有新开关缺省关。</p>
+  </div>
+
+  <figure>
+    <div class="fig-scroll narrow">
+      <svg viewBox="0 0 760 250" role="img" aria-label="上限怎么一级一级往下放的示意图。横轴是时间，纵轴是每次请求的输入大小。上限从高处开始，每一步往下降一档；每一档跑够几轮、真用量稳定在新的上限以内，再降下一档。真用量靠近上限时催她压一次，用量掉下来再慢慢涨。只有她没压、真用量又越过物理窗口时才截断。图里不标具体数字。">
+        <defs>
+          <marker id="w-ah" viewBox="0 0 10 10" refX="9" refY="5" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="f-ink"/></marker>
+        </defs>
+        <path d="M60,20 V210 H740" class="ln" marker-end="url(#w-ah)"/>
+        <text x="50" y="30" text-anchor="end" class="tx-c">输入</text>
+        <text x="740" y="232" text-anchor="end" class="tx-c">时间</text>
+        <path d="M60,40 H740" class="ln thin dash"/>
+        <text x="66" y="34" class="tx-s">物理窗口：越过且她没压，才截断（只认真用量）</text>
+        <path d="M60,70 H240 V110 H420 V140 H740" class="ln aud"/>
+        <text x="66" y="64" class="tx-s">上限：一档一档往下放</text>
+        <path d="M70,170 L120,130 L135,170 L190,120 L205,165 L250,140 L262,175 L320,128 L335,170 L400,135 L412,180 L470,150 L482,182 L540,152 L552,184 L610,153 L622,184 L680,152 L692,185 L730,165" class="ln main"/>
+        <text x="472" y="204" class="tx-s">真用量：靠近上限就催她压，压完掉下来再涨</text>
+        <text x="250" y="100" class="tx-c">跑够几轮、稳住了</text>
+        <text x="430" y="130" class="tx-c">再降一档</text>
+      </svg>
+    </div>
+    <figcaption>一次降一档；她连着几次都压不回来，就停在上一档，先查原因。换模型和降上限分开做。</figcaption>
+  </figure>
+
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>开关</th><th>做什么</th></tr></thead>
+      <tbody>
+        <tr><th>按会话设上限</th><td>只给她的会话设一个有效上限，不跟着模型的物理窗口走；别的会话照旧</td></tr>
+        <tr><th>不代写</th><td>越线只加催压提示；需要时先收小这一次的输出预算，不叫别的模型写摘要</td></tr>
+        <tr><th>截断只认真用量</th><td>拿到提供方报的用量以后才截；估计的数偏大时不会误截</td></tr>
+        <tr><th>纪元多数守卫</th><td>换模型以后旧思考块不再发、账本对不上号，被误判成「整段历史换了」而一直等确认；按多数消息判断，修掉这个误判</td></tr>
+        <tr><th>带图的工具结果也能折</th><td>原来带图的结果钉住不折；开了以后可以折，原图在本地附件目录</td></tr>
+        <tr><th>图片路径占位</th><td>折掉的图留一个路径占位，要看可以按路径再读</td></tr>
+        <tr><th>中文规则包</th><td>催压的几段话和压缩、展开、搜索三个工具的说明用中文；每次请求现读</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="cols">
+    <div class="blk">
+      <h3>越线以后怎么走</h3>
+      <ol class="plain">
+        <li>快到上限：加一段中文催压提示，告诉她有多满、哪些块最大。</li>
+        <li>到了上限：换成紧急那一档，先收小输出预算。</li>
+        <li>她压了：自己写摘要；原文留在账本里，以后能搜、能展开。</li>
+        <li>她没压、真用量越过物理窗口：才截最老的一段，记数、查原因。</li>
+      </ol>
+    </div>
+    <div class="blk">
+      <h3>代价和要防的事</h3>
+      <ul class="plain">
+        <li><strong>缓存：</strong>每压一次，被盖住的那段缓存失效，下次重付全价。压得太勤反而更贵。</li>
+        <li><strong>回想变少：</strong>折进块里的要靠搜和展开才看得到。</li>
+        <li><strong>折错：</strong>摘要可能写歪；原文还在，但要她想得起来去搜。</li>
+        <li><strong>熔断（计划中）：</strong>同一种失败连着出现，就暂停那一类动作，等人看过再开。</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>换模型时的五层约定</h3>
+  <ol class="plain">
+    <li><strong>图片：</strong>每条路由各有一次请求的图片上限；超了宿主会把最老的图永久换成占位。换之前先查上限。</li>
+    <li><strong>用量估计：</strong>按（提供方，模型）各记一个基线和校正量，估计值不超过物理窗口。</li>
+    <li><strong>思考块：</strong>不收别家思考块的模型，转发前剥掉；剥掉会让账本对不上号，所以配纪元多数守卫。</li>
+    <li><strong>缓存和限流：</strong>只观察、只记数，不跟着自动调。</li>
+    <li><strong>能用哪些模型：</strong>由一张批准过的模型表定，不在代码里写死；切之前先跑检查工具。</li>
+  </ol>
+</section>
+<section id="items">
+  <div class="sec-head">
+    <p class="eyebrow">改约和淡忘 · P4</p>
+    <h2>约好的事按原话记状态；没人提，就慢慢淡下去</h2>
+    <p class="lede">「该忘的没忘」最常见的样子是：约定早改了，旧说法还在她眼前。修法不是删旧的，而是<strong>追加一张新的事项卡</strong>：状态由规则从机器事实里抽，不靠模型猜；卡只送到当事人那一路。</p>
+  </div>
+
+  <figure>
+    <div class="fig-scroll narrow">
+      <svg viewBox="0 0 760 300" role="img" aria-label="一件事的状态图。有人提议，对方答应后变成已接受。之后按原话里的说法，可以变成推迟、取消、被新的替代、这次不了。别人转述的事先是待确认的转述，当事人确认后才算数。查不清的记成不知道。7 天没人提的，变成搁着，不再每轮摆在眼前，有人再提起时拿回来。每一次变化都是追加一张新卡，指向旧的。">
+        <defs>
+          <marker id="i-ah" viewBox="0 0 10 10" refX="9" refY="5" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="f-ink"/></marker>
+        </defs>
+        <rect x="20" y="40" width="110" height="40" rx="20" class="box"/><text x="75" y="65" text-anchor="middle" class="tx-b">提议</text>
+        <path d="M130,60 H178" class="ln" marker-end="url(#i-ah)"/><text x="154" y="52" text-anchor="middle" class="tx-c">答应</text>
+        <rect x="180" y="40" width="110" height="40" rx="20" class="box s-main"/><text x="235" y="65" text-anchor="middle" class="tx-b">已接受</text>
+
+        <path d="M290,60 H330 V40 H370" class="ln" marker-end="url(#i-ah)"/>
+        <path d="M290,60 H330 V90 H370" class="ln" marker-end="url(#i-ah)"/>
+        <path d="M290,60 H330 V140 H370" class="ln" marker-end="url(#i-ah)"/>
+        <path d="M290,60 H330 V190 H370" class="ln" marker-end="url(#i-ah)"/>
+        <rect x="372" y="24" width="120" height="32" rx="16" class="box soft"/><text x="432" y="45" text-anchor="middle" class="tx">推迟</text>
+        <rect x="372" y="74" width="120" height="32" rx="16" class="box soft"/><text x="432" y="95" text-anchor="middle" class="tx">取消</text>
+        <rect x="372" y="124" width="120" height="32" rx="16" class="box soft"/><text x="432" y="145" text-anchor="middle" class="tx">被新的替代</text>
+        <rect x="372" y="174" width="120" height="32" rx="16" class="box soft"/><text x="432" y="195" text-anchor="middle" class="tx">这次不了</text>
+
+        <rect x="20" y="140" width="170" height="40" rx="20" class="box s-aud dash"/><text x="105" y="165" text-anchor="middle" class="tx">待确认的转述</text>
+        <path d="M190,160 H235 V82" class="ln" marker-end="url(#i-ah)"/><text x="229" y="118" text-anchor="end" class="tx-c">当事人确认</text>
+        <rect x="20" y="220" width="170" height="40" rx="20" class="box soft"/><text x="105" y="245" text-anchor="middle" class="tx">不知道</text>
+        <text x="20" y="282" class="tx-c">查不清就照实记「不知道」，不猜</text>
+
+        <rect x="560" y="100" width="170" height="60" rx="10" class="band"/>
+        <text x="645" y="126" text-anchor="middle" class="tx-b">搁着</text>
+        <text x="645" y="146" text-anchor="middle" class="tx-s">7 天没人提</text>
+        <path d="M492,40 H530 V120 H558" class="ln thin"/>
+        <path d="M492,190 H530 V140 H558" class="ln thin" marker-end="url(#i-ah)"/>
+        <path d="M645,160 V240 H262 V82" class="ln dash" marker-end="url(#i-ah)"/>
+        <text x="450" y="258" text-anchor="middle" class="tx-c">有人再提起，拿回来</text>
+      </svg>
+    </div>
+    <figcaption>每一次变化都追加一张新卡，带修订号，指向旧的那张。旧卡留着，原物不动。</figcaption>
+  </figure>
+
+  <div class="cols">
+    <div class="blk">
+      <h3>卡怎么来</h3>
+      <ul class="plain">
+        <li>由<strong>规则</strong>从机器事实里抽：谁说的、哪条消息、什么时候。</li>
+        <li>每张卡正文有字数上限。</li>
+        <li>相对日期（「明天」「下周三」）写卡时换算成绝对日期，旁边留原说法。</li>
+      </ul>
+    </div>
+    <div class="blk">
+      <h3>卡送到哪</h3>
+      <ul class="plain">
+        <li>只送到当事人那一路：群里约的送群，私聊约的送私聊。</li>
+        <li>读者取所有来源读者的交集。</li>
+        <li>来客转述跟主人有关的事：标出是谁转的，主人确认以前不当成主人说过；到主人那一轮只带这一件事，来客私聊里别的不带。</li>
+      </ul>
+    </div>
+  </div>
+</section>
+<section id="handoff">
+  <div class="sec-head">
+    <p class="eyebrow">换册和崩溃 · P3 · P5</p>
+    <h2>日子太长就换一本新册接着过，旧册永远留着</h2>
+    <p class="lede">主会话会一直长。总有一天要换一本新册：新册带一份交接包，旧册只读保留，两本用父册编号连成一条链。换册是她看得到的大事，要她同意。</p>
+  </div>
+
+  <figure>
+    <div class="fig-scroll narrow">
+      <svg viewBox="0 0 760 210" role="img" aria-label="换册示意。旧册只读保留。从证据账取出交接包带进新册：最近的短期原话、没了结的事项卡、她是谁、在各个聊天里的关系。新册记着父册编号。换册时用纪元号挡住旧册上迟到的写入。">
+        <defs>
+          <marker id="h-ah" viewBox="0 0 10 10" refX="9" refY="5" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="f-ink"/></marker>
+        </defs>
+        <rect x="20" y="30" width="200" height="120" rx="10" class="band"/>
+        <text x="36" y="56" class="tx-h">旧册</text>
+        <text x="36" y="80" class="tx-s">只读保留</text>
+        <text x="36" y="100" class="tx-s">原物照样找得到</text>
+        <text x="36" y="120" class="tx-s">迟到的写入被纪元号挡住</text>
+
+        <rect x="280" y="30" width="200" height="120" rx="10" class="w-ledger s-ledger dash" stroke-width="1.5"/>
+        <text x="296" y="56" class="tx-h">交接包</text>
+        <text x="296" y="80" class="tx-s">她是谁 · 近况</text>
+        <text x="296" y="100" class="tx-s">没了结的事项卡</text>
+        <text x="296" y="120" class="tx-s">各个聊天里的关系</text>
+        <text x="296" y="140" class="tx-c">规则生成，她过目、可以改</text>
+
+        <rect x="540" y="30" width="200" height="120" rx="10" class="w-main s-main" stroke-width="1.5"/>
+        <text x="556" y="56" class="tx-h">新册</text>
+        <text x="556" y="80" class="tx-s">记着父册编号</text>
+        <text x="556" y="100" class="tx-s">从交接包开始接着过</text>
+        <path d="M220,90 H278" class="ln ledger" marker-end="url(#h-ah)"/>
+        <path d="M480,90 H538" class="ln" marker-end="url(#h-ah)"/>
+        <path d="M640,150 V180 H120 V152" class="ln thin dash" marker-end="url(#h-ah)"/>
+        <text x="380" y="198" text-anchor="middle" class="tx-c">父册链：要原话，顺着链回旧册取</text>
+      </svg>
+    </div>
+  </figure>
+
+  <div class="cols">
+    <div class="blk">
+      <h3>换册的步骤</h3>
+      <ol class="plain">
+        <li>只有一个负责人在换；会动「现在是哪一本」的路都算进来管住。</li>
+        <li>按规则生成交接包，给她过目。</li>
+        <li>升纪元号：旧册上迟到的写入一律挡住、记数。</li>
+        <li>新册记父册编号；旧册只读。</li>
+        <li>群和来客的受众链不走分叉，在新册里从空开始。</li>
+      </ol>
+    </div>
+    <div class="blk">
+      <h3>换模型</h3>
+      <ul class="plain">
+        <li>换模型不是换册：还是同一个她、同一本册。</li>
+        <li>每次换模型当成一次单独的变更：先查目标路由的图片上限、思考块的规矩，跑检查工具再切。</li>
+        <li>换模型和调水位上限分开做。</li>
+      </ul>
+    </div>
+    <div class="blk">
+      <h3>崩溃和「不知道到没到」</h3>
+      <ul class="plain">
+        <li>每段发话先登记再发，带纪元号；发出后记平台消息编号。</li>
+        <li>重启后按平台编号对账；查不清的记成「不知道到没到」，照实告诉她，不让模型自己重发。</li>
+        <li>写了一半的账行隔离；启动时对账。</li>
+      </ul>
+    </div>
+    <div class="blk">
+      <h3>上线前要过的演练</h3>
+      <ul class="plain">
+        <li>在副本宿主上换一次册，再退回。</li>
+        <li>换册中途杀进程，看纪元号挡不挡得住。</li>
+        <li>发话中途断线，看「不知道到没到」记得对不对。</li>
+        <li>请求改写被宿主封掉时，退路走不走得通。</li>
+      </ul>
+    </div>
+  </div>
+</section>
+<section id="roadmap">
+  <div class="sec-head">
+    <p class="eyebrow">分阶段</p>
+    <h2>一层一层上；每层单独上线，都能退回，都能停在那里</h2>
+    <p class="lede">每一层都写清三件事：过什么门才上、怎么退回、她那边看不看得到。她看得到的变化，上线前先问三件事：她知不知道，能不能反对，这是不是长在她身上的东西。</p>
+  </div>
+
+  <div class="rows">
+    <div class="row"><div class="row-k"><b>P0 只记账</b></div><div class="row-v">
+      <span>证据账三个写者：桥记来话、请求清单、送达；插件记落盘以后的事和用量；代理记出口哈希和用量。</span>
+      <dl><dt>过门</dt><dd>副本宿主上跑；发出去的字节和不记账时逐字节相同；对账干净一段时间</dd>
+      <dt>退回</dt><dd>根下放 off 文件停写；或者换回不带记账的插件</dd>
+      <dt>她那边</dt><dd>几乎看不到：账本目录对她关上</dd></dl></div></div>
+    <div class="row"><div class="row-k"><b>P0.5 heard</b></div><div class="row-v">
+      <span>主人的话洗干净写进她的「听到过」。开关失败即关。</span>
+      <dl><dt>过门</dt><dd>先只数；门真挡以后、主人看过只数的量点了头，才真写</dd>
+      <dt>退回</dt><dd>开关改回只数；写进去的删不掉</dd>
+      <dt>她那边</dt><dd>真写以后看得到：回想工具翻得到主人说过的话</dd></dl></div></div>
+    <div class="row"><div class="row-k"><b>P1 工具的门</b></div><div class="row-v">
+      <span>群和来客那几轮，翻旧事的工具缺省挡。</span>
+      <dl><dt>过门</dt><dd>先只记一段时间；主人那几轮误挡是 0；告诉她、听她怎么说；主人看过再切真挡</dd>
+      <dt>退回</dt><dd>开关改回只记（不用重启）；heard 真写过以后不能单独退</dd>
+      <dt>她那边</dt><dd>看得到：群里翻不到旧事、看不到便条和日记</dd></dl></div></div>
+    <div class="row"><div class="row-k"><b>P2 按受众拼</b></div><div class="row-v">
+      <span>群和来客那一轮从空开始拼请求，各走各的受众链；出口核对发话目标。</span>
+      <dl><dt>过门</dt><dd>副本上比「在代理侧拼」和「在桥里拼」两条路；拼出来的请求逐条核读者</dd>
+      <dt>退回</dt><dd>关掉受众链，回到只有门</dd>
+      <dt>她那边</dt><dd>看得到：群里那一轮的视图变小</dd></dl></div></div>
+    <div class="row"><div class="row-k"><b>W 水位</b></div><div class="row-v">
+      <span>按会话设上限、不代写、截断只认真用量、中文催压、带图结果可折。</span>
+      <dl><dt>过门</dt><dd>上限始终高于实际体量，一档一档往下放；换模型和改上限分开上</dd>
+      <dt>退回</dt><dd>上限改回上一档；或者换回上一版代理</dd>
+      <dt>她那边</dt><dd>看得到：催压更勤，催压的话是中文</dd></dl></div></div>
+    <div class="row"><div class="row-k"><b>P3 送达账</b></div><div class="row-v">
+      <span>发话带纪元号；重启后按平台编号核对；查不清记「不知道到没到」，不自动重发。</span>
+      <dl><dt>过门</dt><dd>假的聊天那头模拟「发到一半宿主退出」：重启后不重发、不误报</dd>
+      <dt>退回</dt><dd>关掉送达账的开关</dd></dl></div></div>
+    <div class="row"><div class="row-k"><b>P3.5 撤回和删除</b></div><div class="row-v">
+      <span>撤回的消息记成墓碑：只盖住，不存原文。从旧备份恢复时，撤回的不能跟着回来。</span>
+      <dl><dt>过门</dt><dd>用编出来的内容演一遍「备份、撤回、从旧备份恢复」</dd>
+      <dt>退回</dt><dd>不再写墓碑；已经写的留着</dd></dl></div></div>
+    <div class="row"><div class="row-k"><b>P4 事项卡</b></div><div class="row-v">
+      <span>约定有变时，给当事人那一路追加一张卡；取消的不再提醒，7 天没人提就搁着。</span>
+      <dl><dt>过门</dt><dd>用真实尺寸的系统段和完整工具表测；转述、取消、重新同意都要有对照</dd>
+      <dt>退回</dt><dd>关掉投递，同时追加一条「事项卡停用」，免得最后一张卡一直像是现行的</dd>
+      <dt>她那边</dt><dd>看得到；和她的便条对不上时以她的便条为准</dd></dl></div></div>
+    <div class="row"><div class="row-k"><b>P5 换册</b></div><div class="row-v">
+      <span>生活史太长时换一本新册，带交接包和父链。</span>
+      <dl><dt>过门</dt><dd>隔离的拷贝上，轮中、发送中、换册中各强杀一次都接得上；旧引用沿父链查得回</dd>
+      <dt>退回</dt><dd>不设换册阈值；指针指回旧册</dd>
+      <dt>她那边</dt><dd>看得到，要她同意</dd></dl></div></div>
+    <div class="row"><div class="row-k"><b>P6 外部记忆库</b></div><div class="row-v">
+      <span>受众过滤做好以后，再考虑接自动回忆。群里不开自动回忆。可选。</span></div></div>
+  </div>
+
+  <h3>先后的规矩</h3>
+  <ul class="plain">
+    <li><strong>P0 打头。</strong>后面的门都靠这本账。W 例外，它不依赖证据账。</li>
+    <li><strong>heard 和证据账拆成两次上线。</strong>分别归因，分别回退。</li>
+    <li><strong>真写 heard 必须在 P1 真挡之后。</strong></li>
+    <li><strong>P1 和 P2 紧挨着。</strong>P2 的副本验证和 P1 的只记观察同时做。</li>
+    <li><strong>回退要成对。</strong>heard 已经真写时，P1 不能单独退。</li>
+    <li><strong>换模型和改水位上限分开上。</strong></li>
+    <li><strong>真要换宿主，排在 P5 之后。</strong>必须先在 DSH 里把换册跑通。</li>
+    <li><strong>每一层上线照同一个流程：</strong>等她空闲，备份，停宿主，起宿主，体检，写改动记录，告诉她。</li>
+  </ul>
+
+  <h3>撤回和删除：每一处能删到哪一步</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>在哪</th><th>能不能删</th></tr></thead>
+      <tbody>
+        <tr><th>DSH 会话日志、dsh-fish 事件流</th><td>删不掉（只追加）。只能用墓碑盖住，之后不再给</td></tr>
+        <tr><th>压缩代理里的原文</th><td>也许能删，要核</td></tr>
+        <tr><th>外部记忆库</th><td>能删。自动同步开着的时候，别人的话也可能被存进去</td></tr>
+        <tr><th>证据账、请求记录</th><td>本来就只存编号和哈希；用墓碑盖住</td></tr>
+        <tr><th>模型提供方、聊天对方那边</th><td>删不掉</td></tr>
+        <tr><th>备份</th><td>删了就退不回去。恢复前先取比备份新的墓碑，取不到就让恢复出来的档保持离线</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+<section id="sources">
+  <div class="sec-head">
+    <p class="eyebrow">借了什么</p>
+    <h2>从各家项目里拿了什么、避开了什么</h2>
+    <p class="lede">这套方案不是照搬或拼接哪一家插件。每个项目只取比现有做法好的纯机制，自己重写，落进已有的几个负责人（桥、fish-ledger、压缩代理的 fork、dsh-fish）。右边的标签是落在哪个阶段。只借了思路的，没有拷代码。</p>
+  </div>
+
+  <div class="cols">
+    <div class="blk">
+      <h3>万卷（wanjuan）</h3>
+      <ul class="plain">
+        <li>追加之前先看文件尾，隔离写了一半的行；状态文件先写临时文件再改名 <span class="pill">P0</span></li>
+        <li>两步做的动作记三方状态：自己的账、宿主实际、提供方用量 <span class="pill">P0 · P3</span></li>
+        <li>缓存没命中分「正常 / 异常」两本账（只借分类，判定自己写） <span class="pill">P0</span></li>
+        <li>用量估计按（提供方，模型）分桶做「加性基线 + 真用量优先」，不用纯乘性系数 <span class="pill">W</span></li>
+        <li>「最后一条用户消息之前字节一个不差」写成断言，就是换桥前的请求对照</li>
+      </ul>
+    </div>
+    <div class="blk">
+      <h3>dsh-live-compact</h3>
+      <ul class="plain">
+        <li>派生出来的东西记着来源事件编号，原事件不动 <span class="pill">P3–P5</span></li>
+        <li>完成、送达只认调用编号和回执，不认「看起来发了」 <span class="pill">P3</span></li>
+        <li>一轮结束时收尾，下一轮开工前等它做完，有时间上限 <span class="pill">P0</span></li>
+        <li>已经进缓存的前缀不改，每个受众的视图只往后追加 <span class="pill">P2</span></li>
+      </ul>
+    </div>
+    <div class="blk">
+      <h3>billion-context / trillion-context（保留并扩展）</h3>
+      <ul class="plain">
+        <li>原文账本 + 按块还原，折叠只改发出去的视图；当她的原话层</li>
+        <li>摘要由她自己写，配中文规则包</li>
+        <li>系统提示保护：系统提示后面不再加系统角色的消息</li>
+        <li>「只认字节一致的前缀」认会话，每个受众一条稳定的链 <span class="pill">P2</span></li>
+        <li>按会话上限、不代写、截断只认真用量、中文催压 <span class="pill">W</span></li>
+        <li>出口哈希、用量、请求编号头 <span class="pill">P0</span></li>
+      </ul>
+    </div>
+    <div class="blk">
+      <h3>Comma（只借设计）</h3>
+      <ul class="plain">
+        <li>来话进门就封受众标签；没标签按最严；派生物取交集；她写的按写时最严算 <span class="pill">P0</span></li>
+        <li>发前登记回执；不确定记「未知」、不自动重发 <span class="pill">P3</span></li>
+        <li>状态只在变了时追加一条带修订号的新消息，旧的不改 <span class="pill">P4</span></li>
+        <li>纪元栅栏：换活动册时加一，旧轮迟到的结果只记账不执行 <span class="pill">P5</span></li>
+      </ul>
+    </div>
+    <div class="blk">
+      <h3>Cortico</h3>
+      <ul class="plain">
+        <li>来话先落库、全局递增序号，重启后按序号补投 <span class="pill">P0 · P5</span></li>
+        <li>请求清单：发出去的每一段指回原事件，不往她的会话日志写 <span class="pill">P0 · P2</span></li>
+        <li>连续强制交接压不回去就停手、记错误 <span class="pill">W</span></li>
+        <li>权限收成一张表，判定和展示同一个函数，测试按表逐格生成 <span class="pill">P1</span></li>
+        <li>契约版本号：依赖版本对不上就整条停用并写进状态</li>
+      </ul>
+    </div>
+    <div class="blk">
+      <h3>DeepSeekBot</h3>
+      <ul class="plain">
+        <li>发送的「在途」状态紧贴真正发包前那一刻落盘，区分「确定没发出」和「结果未知」 <span class="pill">P3</span></li>
+        <li>独立于备份之外、只追加的墓碑账，恢复旧备份前先取并集，顺着来源链连带盖住派生物 <span class="pill">P3.5 · P4</span></li>
+        <li>按（链、提供方、模型）被动测缓存寿命；分清瞬时忙和额度冷却 <span class="pill">W</span></li>
+      </ul>
+    </div>
+    <div class="blk">
+      <h3>记忆评测榜上的几个插件</h3>
+      <ul class="plain">
+        <li>无歧义的中文相对日期，按那条事件的真实时间用代码换算，旁边注上绝对日期；跳过引号、转述和假设 <span class="pill">P2 · P4</span></li>
+        <li>搜索剥掉信封抬头、压低高频称呼的权重、单双字 BM25、重叠窗口摘录 <span class="pill">W</span></li>
+        <li>事项卡到期和前置事项完成时惰性解封 <span class="pill">P4</span></li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>明确不拿的</h3>
+  <ul class="plain">
+    <li><strong>外部记忆插件整包装：</strong>单会话混流下会跨受众串台、两个写手打架，或者把唯一的时间线拆开。一律不装、不共存。</li>
+    <li><strong>图数据库和旁路小模型代写卡片：</strong>贵，会把玩笑固化成人设，还丢时序。</li>
+    <li><strong>每轮强制预塞旧话、答后二次改写：</strong>诱发背档案的腔调，篡改原话，延迟翻倍。</li>
+    <li><strong>群里自动预拉外部记忆：</strong>记忆工具已经每一轮都放，再加自动预拉，就会被动把私聊带进群那一轮。</li>
+    <li><strong>两个压缩写手并用、往她的日志里写压缩事件：</strong>删不掉，块号漂移，缓存失效。</li>
+    <li><strong>自动折、外部摘要、预压代写当日常：</strong>那样摘要就不是她写的，私聊原文还会发给别的模型。</li>
+    <li><strong>用宿主原生压缩换册、靠分叉做受众视图：</strong>前者清空状态，后者让群那一册读到私聊块。</li>
+    <li><strong>「模型看全部，只在出口管」当主防线：</strong>出口核对只是第二道。</li>
+  </ul>
+</section>
+<section id="limits">
+  <div class="sec-head">
+    <p class="eyebrow">插件的极限</p>
+    <h2>每样能力用哪个口子做，墙在哪</h2>
+    <p class="lede">所有接线都做在 DSH 插件的口子上（桥本身就是宿主里的一个插件），每样能力都找得到落点，没有一样非换宿主不可。最大的一堵墙是<strong>模型请求流</strong>那个口子：宿主写明只许看不许改，桥靠它默认放行，把请求改写后重发。这个口子哪天被收紧，要当成迟早的事来准备。</p>
+    <p class="note">「稳」= 用公开的口子；「中」= 能用，但靠宿主默认放行或别人的内部函数；「弱」= 只能绕；「没核」= 可能是墙。</p>
+  </div>
+
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>能力</th><th>口子</th><th>墙</th><th>怎么绕</th><th>向上游要</th></tr></thead>
+      <tbody>
+        <tr><th>登记来话是谁、给谁看</th><td>桥的送消息 + 会话事件。稳</td><td>用户消息没有来源字段；dsh-fish 的便条、叫醒没有信封</td><td>证据账在旁边另记；没信封的按最严</td><td>插件追加的消息带来源和受众，并传进工具上下文</td></tr>
+        <tr><th>按受众拼整份请求</th><td>只有模型请求流。中，最大的墙</td><td>宿主写明只读，靠默认放行；改写不落日志</td><td>请求清单 + 出口哈希补审计；每次升宿主前比两个版本的源码；先演练一次「改写被封」</td><td>按请求的「视图投影」口子，落日志、能重放</td></tr>
+        <tr><th>按受众挑系统提示的段落</th><td>系统提示拼装。弱</td><td>系统提示会进历史；段落没有受众标记</td><td>在请求视图里换内容，绝不加第二条系统消息</td><td>段落带受众标记、按请求选段</td></tr>
+        <tr><th>查工具结果的权限</th><td>工具执行前后。稳</td><td>口子不知道这一轮是谁引起的</td><td>插件和桥用同一个纯函数、从同一条事件流算读者；插件没留判定由桥补判</td><td>工具上下文带「本轮是谁的消息引起的」</td></tr>
+        <tr><th>两轮之间提交在途状态</th><td>一轮结束事件 + 每轮开工前。稳</td><td>可能拖慢下一条回复</td><td>等收尾做完再开工，有时间上限</td><td></td></tr>
+        <tr><th>一轮只对一个受众</th><td>每轮开工前只接一部分消息。没核</td><td>宿主先把整批消息领走，没接的不会自己回队</td><td>自己重投；或按混进来的几个受众的交集组装</td><td>开工前能把没接的消息退回去</td></tr>
+        <tr><th>换一本会话（换册）</th><td>dsh-fish 的换会话 + 宿主建会话 + 代理接父链。中</td><td>要用 dsh-fish 的内部函数，升级会断</td><td>只许一个负责人；接父链的两条路先在副本上比；群和来客不走分叉</td><td>dsh-fish 给一个换册服务</td></tr>
+        <tr><th>换模型</th><td>会话级的模型选择。中</td><td>窗口、分词、单价、缓存全跟着变；图片上限可能让旧图永久换成占位</td><td>每次换模型当一次单独变更；切之前先查图片上限、跑检查工具</td><td></td></tr>
+        <tr><th>改约和淡忘</th><td>不靠宿主：证据账 + 插件消息追加。稳</td><td>不能用系统角色发；不能改旧消息</td><td>改约记成新的一条，旧的留着</td><td>便条和约定按受众查询</td></tr>
+        <tr><th>送达未知</th><td>桥自己发话 + 回查平台消息。稳</td><td>平台没有「同一条只发一次」的保证；超时可能拿不到编号</td><td>照实记「不知道到没到」，不让模型自己重发</td><td></td></tr>
+        <tr><th>崩溃恢复</th><td>一轮结束 + 开工前屏障；宿主日志只追加。中</td><td>按名字停宿主停不到代理进程；代理状态只在内存</td><td>写了一半的行隔离；租约；启动时对账</td><td></td></tr>
+        <tr><th>降低水位</th><td>代理 fork 里的上下文上限。稳，是自己的代码</td><td>上游不能按会话设；越线会代写摘要</td><td>fork 加「按会话覆盖」和「不代写」两个开关</td><td>按会话的压缩设置</td></tr>
+        <tr><th>受众链的缓存</th><td>代理「只认字节一致的前缀」。稳</td><td>桥在请求期贴的字一改，编号和块号全漂</td><td>冻结请求期的字；换桥前跑请求对照</td><td></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="cols">
+    <div class="blk">
+      <h3>每次升级要跑的检查</h3>
+      <ul class="plain">
+        <li>升宿主：按新旧版本标签比源码里用到的接口；数一遍插件提供的工具，防兼容检查悄悄跳过。</li>
+        <li>升 dsh-fish：拿新包重跑桥和 heard 的测试（它们靠 dsh-fish 内部函数的形状）。</li>
+        <li>换桥：同一份假历史在新旧两版上各过一遍请求改写，旧消息逐字相同。</li>
+        <li>升代理：开关全关时，出站字节和上一版逐字节相同。</li>
+      </ul>
+    </div>
+    <div class="blk">
+      <h3>真撞墙时的退路</h3>
+      <ul class="plain">
+        <li>请求改写被封：退到只靠工具的门 + 代理侧按受众拼。</li>
+        <li>工具上下文拿不到触发者：继续用两边同一个函数从事件流算。</li>
+        <li>真要换宿主：先在 DSH 里把换册跑通，再搬。</li>
+      </ul>
+    </div>
+    <div class="blk">
+      <h3>最大的风险</h3>
+      <ul class="plain">
+        <li>P2 之前，群那一轮的第一次请求带着整本主册。</li>
+        <li>写进去的删不掉：heard、事件流、会话日志都只追加。</li>
+        <li>换模型可能永久丢掉旧图。</li>
+        <li>方案不新增运行时直接替换别人代码的做法；已有的几处要往宿主正式的口子上挪。</li>
+      </ul>
+    </div>
+  </div>
+</section>
+</main>
+<footer class="foot">
+  <p>fish-sessionless 架构图。只画机制，不记录任何一处部署的状态。文字以仓库里 <code>docs/zh/</code> 的中文文档为正本；这一页由 <code>docs/architecture/build.mjs</code> 从 <code>docs/architecture/src/</code> 拼成。</p>
+  <p>MIT 许可，Copyright (c) 2026 mochi-fish contributors。压缩代理用的是 billion-context（含 acp-kernel）和它的 fork，出处见仓库的 THIRD-PARTY-NOTICES。</p>
+</footer>
+</div>
+<script>
+(function () {
+  var figs = Array.prototype.slice.call(document.querySelectorAll('.pathfig'));
+  figs.forEach(function (fig) {
+    var btns = Array.prototype.slice.call(fig.querySelectorAll('[data-path-btn]'));
+    var panels = Array.prototype.slice.call(fig.querySelectorAll('[data-for]'));
+    var setPath = function (p) {
+      fig.setAttribute('data-path', p);
+      btns.forEach(function (b) { b.setAttribute('aria-pressed', String(b.getAttribute('data-path-btn') === p)); });
+      panels.forEach(function (el) { el.hidden = el.getAttribute('data-for') !== p; });
+    };
+    btns.forEach(function (b) {
+      b.addEventListener('click', function () { setPath(b.getAttribute('data-path-btn')); });
+    });
+    setPath('all');
+  });
+})();
+</script>
+</body>
+</html>

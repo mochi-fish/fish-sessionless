@@ -1,0 +1,5 @@
+# run-exclusive 的锁
+.locks/
+# 自己的核准表（照 models.example.json 写）
+models.json
+node_modules/

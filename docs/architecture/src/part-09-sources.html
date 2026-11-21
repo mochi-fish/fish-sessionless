@@ -1,0 +1,87 @@
+<section id="sources">
+  <div class="sec-head">
+    <p class="eyebrow">借了什么</p>
+    <h2>从各家项目里拿了什么、避开了什么</h2>
+    <p class="lede">这套方案不是照搬或拼接哪一家插件。每个项目只取比现有做法好的纯机制，自己重写，落进已有的几个负责人（桥、fish-ledger、压缩代理的 fork、dsh-fish）。右边的标签是落在哪个阶段。只借了思路的，没有拷代码。</p>
+  </div>
+
+  <div class="cols">
+    <div class="blk">
+      <h3>万卷（wanjuan）</h3>
+      <ul class="plain">
+        <li>追加之前先看文件尾，隔离写了一半的行；状态文件先写临时文件再改名 <span class="pill">P0</span></li>
+        <li>两步做的动作记三方状态：自己的账、宿主实际、提供方用量 <span class="pill">P0 · P3</span></li>
+        <li>缓存没命中分「正常 / 异常」两本账（只借分类，判定自己写） <span class="pill">P0</span></li>
+        <li>用量估计按（提供方，模型）分桶做「加性基线 + 真用量优先」，不用纯乘性系数 <span class="pill">W</span></li>
+        <li>「最后一条用户消息之前字节一个不差」写成断言，就是换桥前的请求对照</li>
+      </ul>
+    </div>
+    <div class="blk">
+      <h3>dsh-live-compact</h3>
+      <ul class="plain">
+        <li>派生出来的东西记着来源事件编号，原事件不动 <span class="pill">P3–P5</span></li>
+        <li>完成、送达只认调用编号和回执，不认「看起来发了」 <span class="pill">P3</span></li>
+        <li>一轮结束时收尾，下一轮开工前等它做完，有时间上限 <span class="pill">P0</span></li>
+        <li>已经进缓存的前缀不改，每个受众的视图只往后追加 <span class="pill">P2</span></li>
+      </ul>
+    </div>
+    <div class="blk">
+      <h3>billion-context / trillion-context（保留并扩展）</h3>
+      <ul class="plain">
+        <li>原文账本 + 按块还原，折叠只改发出去的视图；当她的原话层</li>
+        <li>摘要由她自己写，配中文规则包</li>
+        <li>系统提示保护：系统提示后面不再加系统角色的消息</li>
+        <li>「只认字节一致的前缀」认会话，每个受众一条稳定的链 <span class="pill">P2</span></li>
+        <li>按会话上限、不代写、截断只认真用量、中文催压 <span class="pill">W</span></li>
+        <li>出口哈希、用量、请求编号头 <span class="pill">P0</span></li>
+      </ul>
+    </div>
+    <div class="blk">
+      <h3>Comma（只借设计）</h3>
+      <ul class="plain">
+        <li>来话进门就封受众标签；没标签按最严；派生物取交集；她写的按写时最严算 <span class="pill">P0</span></li>
+        <li>发前登记回执；不确定记「未知」、不自动重发 <span class="pill">P3</span></li>
+        <li>状态只在变了时追加一条带修订号的新消息，旧的不改 <span class="pill">P4</span></li>
+        <li>纪元栅栏：换活动册时加一，旧轮迟到的结果只记账不执行 <span class="pill">P5</span></li>
+      </ul>
+    </div>
+    <div class="blk">
+      <h3>Cortico</h3>
+      <ul class="plain">
+        <li>来话先落库、全局递增序号，重启后按序号补投 <span class="pill">P0 · P5</span></li>
+        <li>请求清单：发出去的每一段指回原事件，不往她的会话日志写 <span class="pill">P0 · P2</span></li>
+        <li>连续强制交接压不回去就停手、记错误 <span class="pill">W</span></li>
+        <li>权限收成一张表，判定和展示同一个函数，测试按表逐格生成 <span class="pill">P1</span></li>
+        <li>契约版本号：依赖版本对不上就整条停用并写进状态</li>
+      </ul>
+    </div>
+    <div class="blk">
+      <h3>DeepSeekBot</h3>
+      <ul class="plain">
+        <li>发送的「在途」状态紧贴真正发包前那一刻落盘，区分「确定没发出」和「结果未知」 <span class="pill">P3</span></li>
+        <li>独立于备份之外、只追加的墓碑账，恢复旧备份前先取并集，顺着来源链连带盖住派生物 <span class="pill">P3.5 · P4</span></li>
+        <li>按（链、提供方、模型）被动测缓存寿命；分清瞬时忙和额度冷却 <span class="pill">W</span></li>
+      </ul>
+    </div>
+    <div class="blk">
+      <h3>记忆评测榜上的几个插件</h3>
+      <ul class="plain">
+        <li>无歧义的中文相对日期，按那条事件的真实时间用代码换算，旁边注上绝对日期；跳过引号、转述和假设 <span class="pill">P2 · P4</span></li>
+        <li>搜索剥掉信封抬头、压低高频称呼的权重、单双字 BM25、重叠窗口摘录 <span class="pill">W</span></li>
+        <li>事项卡到期和前置事项完成时惰性解封 <span class="pill">P4</span></li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>明确不拿的</h3>
+  <ul class="plain">
+    <li><strong>外部记忆插件整包装：</strong>单会话混流下会跨受众串台、两个写手打架，或者把唯一的时间线拆开。一律不装、不共存。</li>
+    <li><strong>图数据库和旁路小模型代写卡片：</strong>贵，会把玩笑固化成人设，还丢时序。</li>
+    <li><strong>每轮强制预塞旧话、答后二次改写：</strong>诱发背档案的腔调，篡改原话，延迟翻倍。</li>
+    <li><strong>群里自动预拉外部记忆：</strong>记忆工具已经每一轮都放，再加自动预拉，就会被动把私聊带进群那一轮。</li>
+    <li><strong>两个压缩写手并用、往她的日志里写压缩事件：</strong>删不掉，块号漂移，缓存失效。</li>
+    <li><strong>自动折、外部摘要、预压代写当日常：</strong>那样摘要就不是她写的，私聊原文还会发给别的模型。</li>
+    <li><strong>用宿主原生压缩换册、靠分叉做受众视图：</strong>前者清空状态，后者让群那一册读到私聊块。</li>
+    <li><strong>「模型看全部，只在出口管」当主防线：</strong>出口核对只是第二道。</li>
+  </ul>
+</section>

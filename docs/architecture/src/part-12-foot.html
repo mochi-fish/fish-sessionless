@@ -1,0 +1,24 @@
+</main>
+<footer class="foot">
+  <p>fish-sessionless 架构图。只画机制，不记录任何一处部署的状态。文字以仓库里 <code>docs/zh/</code> 的中文文档为正本；这一页由 <code>docs/architecture/build.mjs</code> 从 <code>docs/architecture/src/</code> 拼成。</p>
+  <p>MIT 许可，Copyright (c) 2026 mochi-fish contributors。压缩代理用的是 billion-context（含 acp-kernel）和它的 fork，出处见仓库的 THIRD-PARTY-NOTICES。</p>
+</footer>
+</div>
+<script>
+(function () {
+  var figs = Array.prototype.slice.call(document.querySelectorAll('.pathfig'));
+  figs.forEach(function (fig) {
+    var btns = Array.prototype.slice.call(fig.querySelectorAll('[data-path-btn]'));
+    var panels = Array.prototype.slice.call(fig.querySelectorAll('[data-for]'));
+    var setPath = function (p) {
+      fig.setAttribute('data-path', p);
+      btns.forEach(function (b) { b.setAttribute('aria-pressed', String(b.getAttribute('data-path-btn') === p)); });
+      panels.forEach(function (el) { el.hidden = el.getAttribute('data-for') !== p; });
+    };
+    btns.forEach(function (b) {
+      b.addEventListener('click', function () { setPath(b.getAttribute('data-path-btn')); });
+    });
+    setPath('all');
+  });
+})();
+</script>

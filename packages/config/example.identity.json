@@ -1,0 +1,23 @@
+{
+  "$comment": "示例：号、名字、路径全是编的。照 SCHEMA.md 改成自己的，放在仓库外面，用 FISH_IDENTITY_FILE 指过去。",
+  "schema": 1,
+  "owner": {
+    "displayName": "主人",
+    "ids": {
+      "qq": ["10001"],
+      "bili": ["12345678"],
+      "vrc": ["usr_11111111-2222-3333-4444-555555555555"]
+    }
+  },
+  "companion": {
+    "name": "大肥鱼",
+    "ids": {
+      "qq": ["20000"]
+    }
+  },
+  "proactiveChats": [
+    { "channel": "qq", "chat": "private:10001" }
+  ],
+  "mainSession": { "by": "fish-home", "file": "~/.dsh-fish/home.json" },
+  "ledgerRoot": "~/.dsh-fish-ledger"
+}

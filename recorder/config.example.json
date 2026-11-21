@@ -1,0 +1,9 @@
+{
+  "url": "ws://127.0.0.1:3001",
+  "accessToken": null,
+  "heartbeat": true,
+  "snapshot": { "onConnect": true, "everyHours": 24, "memberLists": true },
+  "expand": { "forward": true, "replied": true, "rawForward": false, "rawForwardModule": null },
+  "media": { "enabled": true, "maxBytes": 104857600, "fetchFiles": true },
+  "statusEveryMin": 10
+}

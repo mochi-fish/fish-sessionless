@@ -1,0 +1,18 @@
+# 一律 LF（privacy-scan 会拦不该有的 CRLF）；Windows 的批处理用 CRLF。
+* text=auto eol=lf
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# 二进制（privacy-scan 缺省也拦二进制；真要放的在 .privacy-scan.json 的 allowBinary 里点名）
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+*.ico binary
+*.pdf binary
+*.woff binary
+*.woff2 binary
+*.zip binary
+*.gz binary
+*.tgz binary

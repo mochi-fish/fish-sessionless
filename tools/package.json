@@ -1,0 +1,17 @@
+{
+  "name": "fish-sessionless-tools",
+  "version": "0.1.0",
+  "private": true,
+  "description": "陪伴体部署用的小工具：测试排队、出网挡板、临时目录守卫、代理就绪判据、切模型护栏",
+  "type": "module",
+  "license": "MIT",
+  "engines": {
+    "node": ">=22.15"
+  },
+  "dependencies": {
+    "js-yaml": "4.3.2"
+  },
+  "scripts": {
+    "test": "node test/run-all.mjs"
+  }
+}
