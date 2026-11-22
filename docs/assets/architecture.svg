@@ -1,0 +1,121 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 426" width="920" height="426" role="img" aria-label="fish-sessionless 河道流向与主链受众链分流图">
+  <defs>
+    <marker id="fs-ink" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 8.5 5 L 0 8.5 z" fill="#3F4F59"/>
+    </marker>
+    <marker id="fs-main" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 8.5 5 L 0 8.5 z" fill="#2A78D6"/>
+    </marker>
+    <marker id="fs-aud" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 8.5 5 L 0 8.5 z" fill="#EB6834"/>
+    </marker>
+    <marker id="fs-ledger" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 8.5 5 L 0 8.5 z" fill="#1BAF7A"/>
+    </marker>
+  </defs>
+
+  <!-- Outer Card (baka.studio river palette) -->
+  <rect x="4" y="4" width="912" height="418" rx="14" fill="#F2F6F7" stroke="#D3DCE0" stroke-width="1.5"/>
+
+  <!-- Header & Legend -->
+  <text x="32" y="36" font-family="'Noto Serif SC', 'Songti SC', 'PingFang SC', 'Microsoft YaHei', serif" font-size="16.5" font-weight="700" fill="#0E1C24">一份生活史，每次只带眼前合适的部分</text>
+  <rect x="524" y="25" width="14" height="3.5" rx="1.75" fill="#2A78D6"/>
+  <text x="544" y="34" font-family="-apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="11.5" fill="#3F4F59">主链（主人轮）</text>
+  <rect x="642" y="25" width="14" height="3.5" rx="1.75" fill="#EB6834"/>
+  <text x="662" y="34" font-family="-apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="11.5" fill="#3F4F59">受众链与门（群/来客）</text>
+  <rect x="796" y="25" width="14" height="3.5" rx="1.75" fill="#1BAF7A"/>
+  <text x="816" y="34" font-family="-apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="11.5" fill="#3F4F59">证据账（岸边）</text>
+  <line x1="32" y1="50" x2="888" y2="50" stroke="#D3DCE0" stroke-width="1"/>
+
+  <!-- Step 1: Bridge & Envelope -->
+  <rect x="32" y="68" width="182" height="218" rx="10" fill="#FCFDFD" stroke="#3F4F59" stroke-width="1.25"/>
+  <text x="48" y="92" font-family="'Noto Serif SC', 'PingFang SC', 'Microsoft YaHei', serif" font-size="14" font-weight="700" fill="#0E1C24">1. 桥认人与信封</text>
+  <rect x="166" y="77" width="34" height="18" rx="5" fill="#E9EFF1" stroke="#A9B7BE" stroke-width="1"/>
+  <text x="183" y="90" text-anchor="middle" font-family="'JetBrains Mono', Consolas, monospace" font-size="10" font-weight="600" fill="#3F4F59">P0</text>
+  <text x="48" y="112" font-family="-apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="11" fill="#62717A">定这一轮谁在听，进门先登记</text>
+
+  <rect x="46" y="124" width="154" height="30" rx="7" fill="#E4EEFB" stroke="#2A78D6" stroke-width="1.2"/>
+  <text x="123" y="143" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="11.5" font-weight="600" fill="#0E1C24">-a · 主人私聊 / 桌面</text>
+
+  <rect x="46" y="162" width="154" height="30" rx="7" fill="#FDEAE1" stroke="#EB6834" stroke-width="1.2"/>
+  <text x="123" y="181" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="11.5" font-weight="600" fill="#0E1C24">-m · 群聊 / 来客私聊</text>
+
+  <rect x="46" y="200" width="154" height="30" rx="7" fill="#FDEAE1" stroke="#EB6834" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <text x="123" y="219" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="11.5" font-weight="600" fill="#0E1C24">-x · 主人话含别人原话</text>
+
+  <text x="48" y="254" font-family="-apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="11" fill="#3F4F59">出口核对 (P2)：只发给在场读者</text>
+  <text x="48" y="272" font-family="-apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="11" fill="#62717A">送达先登记平台编号 (P0/P3)</text>
+
+  <line x1="214" y1="177" x2="240" y2="177" stroke="#3F4F59" stroke-width="1.75" marker-end="url(#fs-ink)"/>
+
+  <!-- Step 2: Single Main Session + Fail-Closed Tool Gate -->
+  <rect x="246" y="68" width="204" height="218" rx="10" fill="#FCFDFD" stroke="#3F4F59" stroke-width="1.25"/>
+  <text x="262" y="92" font-family="'Noto Serif SC', 'PingFang SC', 'Microsoft YaHei', serif" font-size="14" font-weight="700" fill="#0E1C24">2. 唯一主会话与门</text>
+  <rect x="400" y="77" width="36" height="18" rx="5" fill="#FDEAE1" stroke="#EB6834" stroke-width="1"/>
+  <text x="418" y="90" text-anchor="middle" font-family="'JetBrains Mono', Consolas, monospace" font-size="10" font-weight="600" fill="#C94E1E">P1</text>
+
+  <rect x="260" y="106" width="176" height="62" rx="8" fill="#E4EEFB" stroke="#2A78D6" stroke-width="1.2"/>
+  <text x="272" y="126" font-family="-apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="12" font-weight="700" fill="#0E1C24">她的主会话（主册）</text>
+  <text x="272" y="144" font-family="-apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="11" fill="#3F4F59">dsh-fish：身份 · 便条 · 事件流</text>
+  <text x="272" y="160" font-family="-apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="11" fill="#2A78D6">不管哪种来话，回复都落回这里</text>
+
+  <rect x="260" y="178" width="176" height="94" rx="8" fill="#FDEAE1" stroke="#EB6834" stroke-width="1.4"/>
+  <text x="272" y="198" font-family="-apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="12" font-weight="700" fill="#0E1C24">按受众的工具门</text>
+  <text x="272" y="216" font-family="-apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="11" fill="#3F4F59">• 主人轮：全部照旧，不加限制</text>
+  <text x="272" y="234" font-family="-apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="11" fill="#3F4F59">• 群/来客轮：翻旧事工具默认挡</text>
+  <text x="272" y="256" font-family="-apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="11" font-weight="700" fill="#B84316">fish-ledger 管 + 桥兜底（失败即关）</text>
+
+  <!-- Split Arrows into Two Chains -->
+  <path d="M 450 132 L 478 132" stroke="#2A78D6" stroke-width="2" fill="none" marker-end="url(#fs-main)"/>
+  <path d="M 450 226 L 478 226" stroke="#EB6834" stroke-width="2" fill="none" marker-end="url(#fs-aud)"/>
+
+  <!-- Step 3A: Main Chain -->
+  <rect x="484" y="68" width="192" height="102" rx="10" fill="#E4EEFB" stroke="#2A78D6" stroke-width="1.6"/>
+  <text x="498" y="91" font-family="'Noto Serif SC', 'PingFang SC', 'Microsoft YaHei', serif" font-size="13.5" font-weight="700" fill="#0E1C24">3a. 主链 · 主人那几轮</text>
+  <text x="498" y="112" font-family="-apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="11.5" fill="#3F4F59">• 整条主册：近期原文 + 压缩块</text>
+  <text x="498" y="131" font-family="-apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="11.5" fill="#3F4F59">• 桥照既有改写放行，不添束缚</text>
+  <text x="498" y="152" font-family="'JetBrains Mono', Consolas, monospace" font-size="10.5" font-weight="600" fill="#2A78D6">目标水位 256k · 她自己压 (W)</text>
+
+  <!-- Step 3B: Audience Chain -->
+  <rect x="484" y="182" width="192" height="104" rx="10" fill="#FDEAE1" stroke="#EB6834" stroke-width="1.6" stroke-dasharray="5 3"/>
+  <text x="498" y="205" font-family="'Noto Serif SC', 'PingFang SC', 'Microsoft YaHei', serif" font-size="13.5" font-weight="700" fill="#0E1C24">3b. 受众链 · 群与来客</text>
+  <rect x="634" y="191" width="30" height="17" rx="4" fill="#FCFDFD" stroke="#EB6834" stroke-width="1"/>
+  <text x="649" y="203" text-anchor="middle" font-family="'JetBrains Mono', Consolas, monospace" font-size="9.5" font-weight="600" fill="#C94E1E">P2</text>
+  <text x="498" y="226" font-family="-apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="11.5" fill="#3F4F59">• 按谁在听从空只往后追加现拼</text>
+  <text x="498" y="245" font-family="-apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="11.5" fill="#3F4F59">• 不含私聊与主册摘要；保缓存前缀</text>
+  <text x="498" y="266" font-family="-apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="11" font-weight="700" fill="#B84316">拼不出来这一轮就不发 · 绝不走父链</text>
+
+  <!-- Merge into Step 4: Proxy & Model -->
+  <path d="M 676 132 L 704 132" stroke="#2A78D6" stroke-width="2" fill="none" marker-end="url(#fs-main)"/>
+  <path d="M 676 226 L 704 226" stroke="#EB6834" stroke-width="2" fill="none" marker-end="url(#fs-aud)"/>
+
+  <rect x="710" y="68" width="178" height="218" rx="10" fill="#FCFDFD" stroke="#3F4F59" stroke-width="1.25"/>
+  <text x="724" y="92" font-family="'Noto Serif SC', 'PingFang SC', 'Microsoft YaHei', serif" font-size="13.5" font-weight="700" fill="#0E1C24">4. 压缩代理与模型</text>
+  <text x="724" y="112" font-family="'JetBrains Mono', Consolas, monospace" font-size="11" font-weight="600" fill="#2A78D6">trillion-context</text>
+  <text x="724" y="133" font-family="-apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="11.5" fill="#3F4F59">• 越线只催她自折，不代写</text>
+  <text x="724" y="153" font-family="-apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="11.5" fill="#3F4F59">• 中文 BM25 搜与展开原文</text>
+  <text x="724" y="173" font-family="-apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="11.5" fill="#3F4F59">• 翻旧话附相对日期括号</text>
+  <text x="724" y="193" font-family="-apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="11.5" fill="#138A5F">• 出口记请求清单哈希 (P0)</text>
+
+  <line x1="724" y1="210" x2="874" y2="210" stroke="#D3DCE0" stroke-width="1"/>
+  <rect x="724" y="222" width="150" height="48" rx="8" fill="#E9EFF1" stroke="#A9B7BE" stroke-width="1"/>
+  <text x="799" y="242" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="12" font-weight="700" fill="#0E1C24">模型推理与工具调用</text>
+  <text x="799" y="259" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="10.5" fill="#3F4F59">每一轮只看得到该看的部分</text>
+
+  <!-- Vertical Audit Lines to Evidence Ledger -->
+  <line x1="123" y1="286" x2="123" y2="308" stroke="#1BAF7A" stroke-width="1.5" stroke-dasharray="4 3" marker-end="url(#fs-ledger)"/>
+  <line x1="348" y1="286" x2="348" y2="308" stroke="#1BAF7A" stroke-width="1.5" stroke-dasharray="4 3" marker-end="url(#fs-ledger)"/>
+  <line x1="580" y1="286" x2="580" y2="308" stroke="#1BAF7A" stroke-width="1.5" stroke-dasharray="4 3" marker-end="url(#fs-ledger)"/>
+  <line x1="799" y1="286" x2="799" y2="308" stroke="#1BAF7A" stroke-width="1.5" stroke-dasharray="4 3" marker-end="url(#fs-ledger)"/>
+
+  <!-- Shore Layer 1: Evidence Ledger -->
+  <rect x="32" y="312" width="856" height="52" rx="10" fill="#E0F4EC" stroke="#1BAF7A" stroke-width="1.6"/>
+  <text x="48" y="334" font-family="'Noto Serif SC', 'PingFang SC', 'Microsoft YaHei', serif" font-size="13.5" font-weight="700" fill="#0E1C24">岸边证据账（P0 起 · 模型与工具均不可见）</text>
+  <text x="330" y="334" font-family="-apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="11.5" font-weight="600" fill="#138A5F">只往后追加 · 只存指针、编号与带盐 HMAC 哈希，绝不存原文</text>
+  <text x="48" y="353" font-family="-apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="11.5" fill="#3F4F59">记来源与读者 · 请求清单 (P0/P2) · 送达账与重启对账 (P3) · 撤回墓碑 (P3.5) · 约定事项卡与 7 天搁置 (P4) · 换册交接包与父链 (P5)</text>
+
+  <!-- Shore Layer 2: Read-Only Raw Source Layer -->
+  <rect x="32" y="372" width="856" height="36" rx="8" fill="#E9EFF1" stroke="#A9B7BE" stroke-width="1.2"/>
+  <text x="48" y="395" font-family="'Noto Serif SC', 'PingFang SC', 'Microsoft YaHei', serif" font-size="12.5" font-weight="700" fill="#0E1C24">原物层（只读不改）</text>
+  <text x="176" y="395" font-family="-apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="11.5" fill="#3F4F59">DSH 会话日志 · dsh-fish 事件流 · trillion 原文账本 · 平台消息编号 —— 三条路按指针取回原话，取前先过受众门、先查墓碑</text>
+</svg>
